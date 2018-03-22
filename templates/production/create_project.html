@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main %}
+{% include 'navbar.html' %}
+
+<div style="margin: auto; padding: 80px 20px 0 20px; width: 360px;">
+    <form id="CreateForm" method="post" enctype="multipart/form-data">{% csrf_token %}
+        <select class="mdui-select" name="category_id">
+            <option value="">工程分类</option>
+            {% for c in category_list %}
+                <option value="{{ c.id }}">{{ c.name }}</option>
+            {% endfor %}
+        </select>
+        <div class="mdui-textfield mdui-textfield-floating-label">
+            <label class="mdui-textfield-label">工程名称</label>
+            <input class="mdui-textfield-input" type="text" name="project"/>
+        </div>
+
+        <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-pink" type="button"
+                id="create-submit">提交</button>
+    </form>
+</div>
+
+
+
+
+<script>
+    $("#create-submit").click(function () {
+        var uploadFormData = new FormData($('#CreateForm')[0]);
+        $.ajax({
+            cache: true,
+            type: "POST",
+            url: "/create/project/",
+            data: uploadFormData,
+            async: true,
+            contentType: false,
+            processData:false,
+            error: function(res) {
+                alert(res['msg']);
+            },
+            success: function(res) {
+                if(!res['success']){
+                    alert(res['msg']);
+                }else{
+                    alert(res['msg']);
+                    window.location.href = "/project/list/";
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}

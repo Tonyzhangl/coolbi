@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main %}
+{% include 'navbar.html' %}
+
+<div style="margin: auto; padding: 80px 20px 0 20px">
+    {% include 'status.html' %}
+    <a href="{% url 'create_big_type' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">添加</a>
+    <div class="mdui-table-fluid">
+      <table class="mdui-table mdui-table-hoverable">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>名称</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for t in big_type_list %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ t.name }}</td>
+            <td>
+                <a class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple delete-submit" id="{{ t.id }}">删除</a>
+            </td>
+          </tr>
+        {% endfor %}
+
+        </tbody>
+      </table>
+    </div>
+</div>
+
+
+
+
+
+<script>
+    $(".delete-submit").click(function () {
+        item = $(this);
+        var big_type_id = $(this).attr("id");
+        var formData = new FormData();
+        formData.append('big_type_id', big_type_id);
+        if (confirm('确认要删除该条目？')) {
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url: "/delete/big_type/",
+                data: formData,
+                async: true,
+                contentType: false,
+                processData: false,
+                error: function (res) {
+                    alert(res['msg']);
+                },
+                success: function (res) {
+                    if (!res['success']) {
+                        alert(res['msg']);
+                    } else {
+                        item.closest("tr").remove();
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+{% endblock %}

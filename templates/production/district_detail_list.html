@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main %}
+{% include 'navbar.html' %}
+
+<div style="margin: auto; padding: 80px 20px 0 20px">
+    {% include 'status.html' %}
+    <a href="{% url 'create_district_detail' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">添加</a>
+    <div class="mdui-table-fluid">
+      <table class="mdui-table mdui-table-hoverable">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>名称</th>
+            <th>所属区域</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for d in district_detail_list %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ d.name }}</td>
+            <td>{{ d.district.name }}</td>
+            <td>
+                <a class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple delete-submit" id="{{ d.id }}">删除</a>
+            </td>
+          </tr>
+        {% endfor %}
+
+        </tbody>
+      </table>
+    </div>
+</div>
+
+
+
+
+<script>
+    $(".delete-submit").click(function () {
+        item = $(this);
+        var district_detail_id = $(this).attr("id");
+        var formData = new FormData();
+        formData.append('district_detail_id', district_detail_id);
+        if (confirm('确认要删除该条目？')) {
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url: "/delete/district_detail/",
+                data: formData,
+                async: true,
+                contentType: false,
+                processData: false,
+                error: function (res) {
+                    alert(res['msg']);
+                },
+                success: function (res) {
+                    if (!res['success']) {
+                        alert(res['msg']);
+                    } else {
+                        item.closest("tr").remove();
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+{% endblock %}

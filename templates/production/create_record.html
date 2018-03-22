@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main %}
+{% include 'navbar.html' %}
+
+<div style="margin: auto; padding: 80px 20px 0 20px; width: 600px;">
+    <form id="CreateForm" method="post" enctype="multipart/form-data">{% csrf_token %}
+        <select class="mdui-select" id="demo-js" name="district">
+            <option value="">区域选择</option>
+            {% for d in district_list %}
+                <option value="{{ d.id }}">{{ d.name }}</option>
+            {% endfor %}
+
+        </select>
+        <select class="mdui-select" id="demo-js" style="margin-left: 20px;" name="district_detail">
+            <option value="">区域明细</option>
+            {% for d in district_detail_list %}
+                <option value="{{ d.id }}">{{ d.name }}</option>
+            {% endfor %}
+
+        </select>
+        <select class="mdui-select" id="demo-js" style="margin-left: 20px;" name="organization">
+            <option value="">单位</option>
+            {% for o in organization_list %}
+                <option value="{{ o.id }}">{{ o.name }}</option>
+            {% endfor %}
+        </select>
+        <div class="mdui-textfield mdui-textfield-floating-label">
+            <label class="mdui-textfield-label">序号</label>
+            <input class="mdui-textfield-input" type="text" name="number"/>
+        </div>
+        <select class="mdui-select" id="demo-js" name="category">
+            <option value="">工程分类</option>
+            {% for c in category_list %}
+                <option value="{{ c.id }}">{{ c.name }}</option>
+            {% endfor %}
+        </select>
+        <select class="mdui-select" id="demo-js" style="margin-left: 20px;" name="project">
+            <option value="">工程名称</option>
+            {% for p in project_list %}
+                <option value="{{ p.id }}">{{ p.name }}</option>
+            {% endfor %}
+
+        </select>
+        <select class="mdui-select" id="demo-js" style="margin-left: 20px;" name="measurement">
+            <option value="">计量单位</option>
+            {% for m in measurement_list %}
+                <option value="{{ m.id }}">{{ m.name }}</option>
+            {% endfor %}
+        </select>
+        <div class="mdui-textfield mdui-textfield-floating-label">
+            <label class="mdui-textfield-label">合同单价</label>
+            <input class="mdui-textfield-input" type="text" name="contract_unit_price"/>
+        </div>
+        <div class="mdui-textfield mdui-textfield-floating-label">
+            <label class="mdui-textfield-label">当月完成工程量</label>
+            <input class="mdui-textfield-input" type="text" name="current_month_project_quantities"/>
+        </div>
+        <div class="mdui-textfield mdui-textfield-floating-label">
+            <label class="mdui-textfield-label">当月完成合同价款</label>
+            <input class="mdui-textfield-input" type="text" name="current_month_contract_price"/>
+        </div>
+        <div class="mdui-textfield mdui-textfield-floating-label">
+            <label class="mdui-textfield-label">当月完成合同进度款</label>
+            <input class="mdui-textfield-input" type="text" name="current_month_progress_payment"/>
+        </div>
+        <!-- <div class="mdui-textfield mdui-textfield-floating-label">
+            <label class="mdui-textfield-label">当月完成进度款</label>
+            <input class="mdui-textfield-input" type="text" name="current_month_progress_payment"/>
+        </div> -->
+        <!-- <div class="mdui-textfield mdui-textfield-floating-label">
+            <label class="mdui-textfield-label">累计完成工程量</label>
+            <input class="mdui-textfield-input" type="text" name="all_project_count"/>
+        </div>
+        <div class="mdui-textfield mdui-textfield-floating-label">
+            <label class="mdui-textfield-label">累计完成合同价款</label>
+            <input class="mdui-textfield-input" type="text" name="all_contract_money"/>
+        </div>
+        <div class="mdui-textfield mdui-textfield-floating-label">
+            <label class="mdui-textfield-label">累计完成进度款</label>
+            <input class="mdui-textfield-input" type="text" name="all_process_payment"/>
+        </div> -->
+        <div class="mdui-textfield mdui-textfield-floating-label">
+            <label class="mdui-textfield-label">备注</label>
+            <textarea class="mdui-textfield-input" type="text" name="remark"></textarea>
+        </div>
+
+
+
+
+
+        <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-pink" type="button"
+                id="create-submit">提交</button>
+    </form>
+</div>
+
+
+
+
+<script>
+
+    var inst = new mdui.Select('#demo-js');
+
+
+    $("#create-submit").click(function () {
+        var uploadFormData = new FormData($('#CreateForm')[0]);
+        $.ajax({
+            cache: true,
+            type: "POST",
+            url: "/create/record/",
+            data: uploadFormData,
+            async: true,
+            contentType: false,
+            processData:false,
+            error: function(res) {
+                alert(res['msg']);
+            },
+            success: function(res) {
+                if(!res['success']){
+                    alert(res['msg']);
+                }else{
+                    alert(res['msg']);
+                    window.location.href = "/record/list/";
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}

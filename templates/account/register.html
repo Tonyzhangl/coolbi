@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main %}
+<div style="margin: auto; padding: 160px 20px 0 20px; width: 360px;">
+    <form method="post" action="/register/">{% csrf_token %}
+      <h2>月报产值系统</h2>
+      <div class="mdui-textfield">
+          <input class="mdui-textfield-input" type="text" name="username" placeholder="用户名"/>
+      </div>
+      <div class="mdui-textfield">
+          <input class="mdui-textfield-input" type="text" name="email" placeholder="邮箱"/>
+      </div>
+      <div class="mdui-textfield">
+         <input class="mdui-textfield-input" type="password" name="password" placeholder="输入密码"/>
+      </div>
+      <div class="mdui-textfield">
+         <input class="mdui-textfield-input" type="password" name="confirm_password" placeholder="确认密码"/>
+      </div>
+      <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" type="submit">注册</button>
+    </form>
+</div>
+
+{% endblock %}

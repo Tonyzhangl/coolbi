@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main %}
+{% include 'navbar.html' %}
+
+<div style="margin: auto; padding: 80px 20px 0 20px; ">
+    {% include 'status.html' %}
+    <a href="{% url 'create_record' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">添加</a>
+    <a href="{% url 'edit_parameter' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">设置D的计算所用比率</a>
+    <span>当前：D = C * {{ parameter.ratio }}</span>
+    <a href="{% url 'record_list_category' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">查看按工程分类汇总</a>
+    <a href="{% url 'record_list_district_detail' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">查看按区域明细汇总</a>
+    <a href="{% url 'record_list_district' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">查看按区域汇总</a>
+    <span style="color: red;">注意：按次序（工程分类->区域明细->区域）逐级汇总数据，有数据录入变动时，需重新汇总计算</span>
+    <div class="mdui-table-fluid">
+      <table class="mdui-table mdui-table-hoverable">
+        <thead>
+          <tr>
+            <th style="background-color: bisque">序号</th>
+            <th style="background-color: bisque">项目区域</th>
+            <th style="background-color: bisque">区域明细</th>
+            <th style="background-color: bisque">工程分类<a class="mdui-btn-xs mdui-btn-dense mdui-color-pink mdui-ripple caculate-submit">汇总</a></th>
+            <th style="background-color: bisque">工程名称</th>
+            <th style="background-color: lightblue">单位名称</th>
+            <th>计量单位</th>
+            <th>合同单价A</th>
+            <th>当月工程量B</th>
+            <th>当月合同价款C</th>
+            <th>当月进度款D</th>
+            <th>累计工程量E</th>
+            <th>累计合同价款F</th>
+            <th>累计进度款G</th>
+            <th>备注</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for record in record_list %}
+          <tr>
+            <td style="background-color: bisque">{{ record.number }}</td>
+            <td style="background-color: bisque">{{ record.district.name }}</td>
+            <td style="background-color: bisque">{{ record.district_detail.name }}</td>
+            <td style="background-color: bisque">{{ record.category.name }}</td>
+            <td style="background-color: bisque">{{ record.project.name }}</td>
+            <td style="background-color: lightblue">{{ record.organization.name }}</td>
+            <td>{{ record.measurement.name }}</td>
+            <td>{{ record.contract_unit_price }}</td>
+            <td>{{ record.current_month_project_quantities }}</td>
+            <td>{{ record.current_month_contract_price }}</td>
+            <td>{{ record.current_month_progress_payment }}</td>
+            <td>{{ record.accumulative_project_quantities }}</td>
+            <td>{{ record.accumulative_contract_price }}</td>
+            <td>{{ record.accumulative_progress_payment }}</td>
+            <td>{{ record.remark }}</td>
+          </tr>
+        {% endfor %}
+
+        </tbody>
+      </table>
+    </div>
+</div>
+
+
+<script src="https://cdn.bootcss.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script>
+    $(".caculate-submit").click(function () {
+        $.ajax({
+            cache: true,
+            type: "POST",
+            url: "/caculate/by/category/",
+            data: '',
+            async: true,
+            contentType: false,
+            processData: false,
+            error: function (res) {
+                alert(res['msg']);
+            },
+            success: function (res) {
+                if (!res['success']) {
+                    alert(res['msg']);
+                } else {
+                    alert(res['msg']);
+                    window.location.href = '/record/list/category/';
+                }
+            }
+        });
+
+    });
+</script>
+
+
+{% endblock %}

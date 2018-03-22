@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main %}
+{% include 'navbar.html' %}
+
+<div style="margin: auto; padding: 80px 20px 0 20px; ">
+    {% include 'status.html' %}
+    <div class="mdui-table-fluid">
+      <table class="mdui-table mdui-table-hoverable">
+        <thead>
+          <tr>
+            <th style="background-color: bisque">项目区域<a class="mdui-btn-xs mdui-btn-dense mdui-color-pink mdui-ripple caculate-submit">汇总</a></th>
+            <th style="background-color: bisque">区域明细</th>
+            <th style="background-color: lightblue">单位名称</th>
+            <th>当月合同价款C</th>
+            <th>当月进度款D</th>
+            <th>累计合同价款F</th>
+            <th>累计进度款G</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for record in district_detail_record_list %}
+          <tr>
+            <td style="background-color: bisque">{{ record.district.name }}</td>
+            <td style="background-color: bisque">{{ record.district_detail.name }}</td>
+            <td style="background-color: lightblue">{{ record.organization.name }}</td>
+            <td>{{ record.current_month_contract_price }}</td>
+            <td>{{ record.current_month_progress_payment }}</td>
+            <td>{{ record.accumulative_contract_price }}</td>
+            <td>{{ record.accumulative_progress_payment }}</td>
+          </tr>
+        {% endfor %}
+
+        </tbody>
+      </table>
+    </div>
+</div>
+
+
+<script src="https://cdn.bootcss.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script>
+    $(".caculate-submit").click(function () {
+        $.ajax({
+            cache: true,
+            type: "POST",
+            url: "/caculate/by/district/",
+            data: '',
+            async: true,
+            contentType: false,
+            processData: false,
+            error: function (res) {
+                alert(res['msg']);
+            },
+            success: function (res) {
+                if (!res['success']) {
+                    alert(res['msg']);
+                } else {
+                    alert(res['msg']);
+                    window.location.href = '/record/list/district/';
+                }
+            }
+        });
+
+    });
+</script>
+
+{% endblock %}

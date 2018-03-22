@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main %}
+{% include 'navbar.html' %}
+
+<div style="margin: auto; padding: 80px 20px 0 20px">
+    <a href="{% url 'create_phase' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">添加</a>
+    <div class="mdui-table-fluid">
+      <table class="mdui-table mdui-table-hoverable">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>名称</th>
+            <th>开始</th>
+            <th>结束</th>
+            <th>备注</th>
+            <th>创建时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for p in phase_list %}
+          <tr {% if status.current_phase == p %}style="background-color: bisque" {% endif %}>
+            <td>{{ p.number }}</td>
+            <td>{{ p.name }}</td>
+            <td>{{ p.begin|date:'Y年m月d日' }}</td>
+            <td>{{ p.end|date:'Y年m月d日' }}</td>
+            <td>{{ p.description }}</td>
+            <td>{{ p.created_at|date:'Y年m月d日 H:i:s' }}</td>
+            <td>
+                {% if status.current_phase != p %}
+                    <a class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple select-submit" id="{{ p.id }}">切换到该期</a>
+                {% endif %}
+                <a class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple delete-submit" id="{{ p.id }}">删除</a>
+            </td>
+          </tr>
+        {% endfor %}
+
+        </tbody>
+      </table>
+    </div>
+</div>
+
+
+
+<script>
+    $(".delete-submit").click(function () {
+        item = $(this);
+        var phase_id = $(this).attr("id");
+        var formData = new FormData();
+        formData.append('phase_id', phase_id);
+        if (confirm('确认要删除该条目？')) {
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url: "/delete/phase/",
+                data: formData,
+                async: true,
+                contentType: false,
+                processData: false,
+                error: function (res) {
+                    alert(res['msg']);
+                },
+                success: function (res) {
+                    if (!res['success']) {
+                        alert(res['msg']);
+                    } else {
+                        item.closest("tr").remove();
+                    }
+                }
+            });
+        }
+    });
+
+    $(".select-submit").click(function () {
+        item = $(this);
+        var phase_id = $(this).attr("id");
+        var formData = new FormData();
+        formData.append('phase_id', phase_id);
+        if (confirm('确认切换到该期？')) {
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url: "/phase/select/",
+                data: formData,
+                async: true,
+                contentType: false,
+                processData: false,
+                error: function (res) {
+                    alert(res['msg']);
+                },
+                success: function (res) {
+                    if (!res['success']) {
+                        alert(res['msg']);
+                    } else {
+                        window.location.reload();
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+{% endblock %}

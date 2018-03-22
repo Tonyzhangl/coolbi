@@ -1,0 +1,9 @@
+<div style="padding: 20px; background-color: pink">
+    <span>月报期数：</span>
+    {% if status.current_phase %}
+        {{ status.current_phase.name }} 日期范围： {{ status.current_phase.begin|date:'Y年m月d日' }} 至 {{ status.current_phase.end|date:'Y年m月d日' }}
+        <a style="color: red;" href="{% url 'phase_list' %}">切换</a>
+    {% else %}
+        <a class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple" href="{% url 'phase_list' %}">设置当前月报期数</a>
+    {% endif %}
+</div>

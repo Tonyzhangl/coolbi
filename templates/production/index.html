@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main %}
+{% include 'navbar.html' %}
+
+<div class="mdui-container" style="margin-top: 80px">
+    {% include 'status.html' %}
+
+    <div>
+        <hr>
+        <a href="{% url 'district_list' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">区域</a>
+        <a href="{% url 'district_detail_list' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">区域明细</a><br><br>
+        <a href="{% url 'big_type_list' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">工程项目</a>
+        <a href="{% url 'category_list' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">工程分类</a>
+        <a href="{% url 'project_list' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">工程名称</a><br><br>
+        <a href="{% url 'organization_list' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">单位</a><br><br>
+        <a href="{% url 'measurement_list' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">计量单位</a><br><br>
+        <a href="{% url 'record_list' %}" class="mdui-btn mdui-btn-dense mdui-color-orange mdui-ripple">数据条目</a>
+    </div>
+
+
+</div>
+
+
+
+
+<script src="https://cdn.bootcss.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+{% endblock %}
