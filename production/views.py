@@ -262,6 +262,7 @@ class CreateRecordView(TemplateView):
             category_id = self.request.POST.get('category')
             project_id = self.request.POST.get('project')
             measurement_id = self.request.POST.get('measurement')
+            date = self.request.POST.get('date')
             contract_unit_price = self.request.POST.get('contract_unit_price')
             current_month_project_quantities = self.request.POST.get('current_month_project_quantities')
             current_month_contract_price = self.request.POST.get('current_month_contract_price')
@@ -323,17 +324,17 @@ class CreateRecordView(TemplateView):
                     res["msg"] = "请设置当前月报期数"
                     return JsonResponse(res)
 
-            record_list = Record.objects.filter(
-                district=district,
-                district_detail=district_detail,
-                organization=organization,
-                category=category,
-                project=project,
-                phase=status.current_phase
-            )
-            if len(record_list) != 0:
-                res["msg"] = "该条目已存在，请勿重复提交！"
-                return JsonResponse(res)
+            # record_list = Record.objects.filter(
+            #     district=district,
+            #     district_detail=district_detail,
+            #     organization=organization,
+            #     category=category,
+            #     project=project,
+            #     phase=status.current_phase
+            # )
+            # if len(record_list) != 0:
+            #     res["msg"] = "该条目已存在，请勿重复提交！"
+            #     return JsonResponse(res)
 
 
             current_month_contract_price = float(contract_unit_price) * float(current_month_project_quantities)

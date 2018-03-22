@@ -188,4 +188,3 @@ class Parameter(Model):
     计算所用参数
     """
     ratio = models.FloatField(default=1.00, blank=True, null=True)
-

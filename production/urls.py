@@ -34,7 +34,7 @@ urlpatterns = [
 
 
     url(r'^delete/phase/$', login_required(delete_phase, login_url='/login/'), name="delete_phase"),
-    # url(r'^delete/record/$',  login_required(DeleteRecordView.as_view(), login_url='/login/'), name="delete_record"),
+    url(r'^delete/record/$',  login_required(delete_record, login_url='/login/'), name="delete_record"),
     url(r'^delete/district/$',  login_required(delete_district, login_url='/login/'), name="delete_district"),
     url(r'^delete/district_detail/$',  login_required(delete_district_detail, login_url='/login/'), name="delete_district_detail"),
     url(r'^delete/big_type/$',  login_required(delete_big_type, login_url='/login/'), name="delete_big_type"),
@@ -56,5 +56,3 @@ urlpatterns = [
 
 
 ]
-
-

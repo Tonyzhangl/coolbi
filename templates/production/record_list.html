@@ -32,6 +32,7 @@
             <th>累计合同价款F</th>
             <th>累计进度款G</th>
             <th>备注</th>
+            <th>操作</th>
           </tr>
         </thead>
         <tbody>
@@ -52,6 +53,7 @@
             <td>{{ record.accumulative_contract_price }}</td>
             <td>{{ record.accumulative_progress_payment }}</td>
             <td>{{ record.remark }}</td>
+            <td><a class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple delete-submit" id="{{ record.id }}">删除</a></td>
           </tr>
         {% endfor %}
 
@@ -63,6 +65,34 @@
 
 <script src="https://cdn.bootcss.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 <script>
+    $(".delete-submit").click(function () {
+        item = $(this);
+        var record_id = $(this).attr("id");
+        var formData = new FormData();
+        formData.append('record_id', record_id);
+        if (confirm('确认要删除该条目？')) {
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url: "/delete/record/",
+                data: formData,
+                async: true,
+                contentType: false,
+                processData: false,
+                error: function (res) {
+                    alert(res['msg']);
+                },
+                success: function (res) {
+                    if (!res['success']) {
+                        alert(res['msg']);
+                    } else {
+                        item.closest("tr").remove();
+                    }
+                }
+            });
+        }
+    });
+
     $(".caculate-submit").click(function () {
         $.ajax({
             cache: true,
