@@ -68,12 +68,13 @@ class RecordListView(TemplateView):
         record_list = []
         if status.current_phase:
             record_list = Record.objects.filter(phase=status.current_phase)
-        parameter = Parameter.objects.all()
-        if parameter:
-            parameter = parameter[0]
-        else:
-            parameter = Parameter.objects.create(ratio=1.0)
-        return {'record_list': record_list, 'status': status, 'parameter': parameter}
+        # parameter = Parameter.objects.all()
+        # if parameter:
+        #     parameter = parameter[0]
+        # else:
+        #     parameter = Parameter.objects.create(ratio=1.0)
+        # return {'record_list': record_list, 'status': status, 'parameter': parameter}
+        return { 'record_list': record_list, 'status': status}
 
     def get_context_data(self, **kwargs):
         context = super(RecordListView, self).get_context_data(**kwargs)
@@ -262,11 +263,10 @@ class CreateRecordView(TemplateView):
             category_id = self.request.POST.get('category')
             project_id = self.request.POST.get('project')
             measurement_id = self.request.POST.get('measurement')
-            date = self.request.POST.get('date')
             contract_unit_price = self.request.POST.get('contract_unit_price')
             current_month_project_quantities = self.request.POST.get('current_month_project_quantities')
             current_month_contract_price = self.request.POST.get('current_month_contract_price')
-            current_month_progress_payment = self.request.POST.get('current_month_progress_payment')
+            current_month_project_parameter = self.request.POST.get('current_month_project_parameter')
             # all_project_count = self.request.POST.get('all_project_count')
             # all_contract_money = self.request.POST.get('all_contract_money')
             # all_process_payment = self.request.POST.get('all_process_payment')
@@ -308,6 +308,10 @@ class CreateRecordView(TemplateView):
                 res["msg"] = "请填写当月工程量"
                 return JsonResponse(res)
 
+            if not current_month_project_parameter:
+                res["msg"] = "请填写当月进度完成合同比"
+                return JsonResponse(res)
+
             district = District.objects.get(id=district_id)
             district_detail = DistrictDetail.objects.get(id=district_detail_id)
             organization = Organization.objects.get(id=organization_id)
@@ -344,7 +348,7 @@ class CreateRecordView(TemplateView):
             else:
                 parameter = parameter[0]
 
-            current_month_progress_payment = current_month_contract_price * parameter.ratio
+            current_month_progress_payment = current_month_contract_price * float(current_month_project_parameter)
 
             last_E, last_F, last_G = 0, 0, 0
             last_phase = get_last_phase()
@@ -363,7 +367,7 @@ class CreateRecordView(TemplateView):
                     last_F = last_phase_record.accumulative_contract_price
                     last_G = last_phase_record.accumulative_progress_payment
 
-            accumulative_project_quantities = float(current_month_project_quantities) + last_E
+            accumulative_project_quantities = float(current_month_project_quantities) * float(current_month_project_parameter) + last_E
             accumulative_contract_price = float(current_month_contract_price) + last_F
             accumulative_progress_payment = float(current_month_progress_payment) + last_G
 
@@ -378,6 +382,7 @@ class CreateRecordView(TemplateView):
                 'contract_unit_price': contract_unit_price,
                 'current_month_project_quantities': current_month_project_quantities,
                 'current_month_contract_price': current_month_contract_price,
+                'current_month_project_parameter': current_month_project_parameter,
                 'current_month_progress_payment': current_month_progress_payment,
                 'accumulative_project_quantities': accumulative_project_quantities,
                 'accumulative_contract_price': accumulative_contract_price,

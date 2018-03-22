@@ -112,6 +112,7 @@ class Record(Model):
     measurement = models.ForeignKey(Measurement, on_delete=models.CASCADE)
     contract_unit_price = models.FloatField(blank=True, null=True)
     current_month_project_quantities = models.FloatField(blank=True, null=True)
+    current_month_project_parameter = models.FloatField(blank=True, null=True)
     current_month_contract_price = models.FloatField(blank=True, null=True)
     current_month_progress_payment = models.FloatField(blank=True, null=True)
     accumulative_project_quantities = models.FloatField(blank=True, null=True)
