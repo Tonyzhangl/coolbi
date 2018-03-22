@@ -367,7 +367,7 @@ class CreateRecordView(TemplateView):
                     last_F = last_phase_record.accumulative_contract_price
                     last_G = last_phase_record.accumulative_progress_payment
 
-            accumulative_project_quantities = float(current_month_project_quantities) * float(current_month_project_parameter) + last_E
+            accumulative_project_quantities = float(current_month_project_quantities) + last_E
             accumulative_contract_price = float(current_month_contract_price) + last_F
             accumulative_progress_payment = float(current_month_progress_payment) + last_G
 
