@@ -1020,7 +1020,7 @@ def caculate_by_district(request):
     res = {"success": False, "msg": ""}
     try:
         district_list = District.objects.all()
-        district_detail_list = DistrictDetail.objects.all()
+        record_list = Record.objects.all()
 
         status = get_status()
         phase = status.current_phase
@@ -1030,11 +1030,10 @@ def caculate_by_district(request):
 
         for district in district_list:
             C, D, F, G = 0, 0, 0, 0
-            organization = None
-            for district_detail in district_detail_list:
-                record = DistrictDetailRecord.objects.filter(
+            # organization = None
+            for r in record_list:
+                record = Record.objects.filter(
                     district=district,
-                    district_detail=district_detail,
                     phase=phase
                 )
                 if not record:
@@ -1045,6 +1044,7 @@ def caculate_by_district(request):
                 F += record.accumulative_contract_price
                 G += record.accumulative_progress_payment
                 organization = record.organization
+                print(record)
             if not organization:
                 continue
 
@@ -1058,6 +1058,7 @@ def caculate_by_district(request):
 
             DistrictRecord.objects.create(
                 district=district,
+                category=category,
                 organization=organization,
                 current_month_contract_price=C,
                 current_month_progress_payment=D,
@@ -1077,9 +1078,16 @@ def caculate_by_district(request):
 class RecordListDistrictView(TemplateView):
     template_name = 'production/caculate_by_district.html'
     def get_data(self):
+        district_list = District.objects.all()
+        district_count = len(district_list)
         district_record_list = DistrictRecord.objects.all()
         status = get_status()
-        return {'district_record_list': district_record_list, 'status': status}
+        return {
+                'district_list': district_list,
+                'district_count': district_count,
+                'district_record_list': district_record_list,
+                'status': status
+                }
 
 
     def get_context_data(self, **kwargs):

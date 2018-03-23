@@ -6,12 +6,18 @@
 
 <div style="margin: auto; padding: 80px 20px 0 20px; ">
     {% include 'status.html' %}
+    {% for district in district_list %}
+    <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent"
+            id="gather-submit">{{ district.name }}</button>
+    {% endfor %}
     <div class="mdui-table-fluid">
       <table class="mdui-table mdui-table-hoverable">
         <thead>
           <tr>
             <th style="background-color: bisque">项目区域</th>
-            <th style="background-color: lightblue">单位名称</th>
+            <th style="background-color: lightblue">项目名称</th>
+            <th style="background-color: bisque">单位名称</th>
+            <th style="background-color: lightblue">地区</th>
             <th>当月合同价款C</th>
             <th>当月进度款D</th>
             <th>累计合同价款F</th>
@@ -22,7 +28,8 @@
         {% for record in district_record_list %}
           <tr>
             <td style="background-color: bisque">{{ record.district.name }}</td>
-            <td style="background-color: lightblue">{{ record.organization.name }}</td>
+            <td style="background-color: lightblue">{{ record.}}</td>
+            <td style="background-color: bisque">{{ record.organization.name }}</td>
             <td>{{ record.current_month_contract_price }}</td>
             <td>{{ record.current_month_progress_payment }}</td>
             <td>{{ record.accumulative_contract_price }}</td>
@@ -34,7 +41,6 @@
       </table>
     </div>
 </div>
-
 
 <script src="https://cdn.bootcss.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 

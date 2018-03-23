@@ -163,6 +163,7 @@ class DistrictDetailRecord(Model):
 
 class DistrictRecord(Model):
     district = models.ForeignKey(District, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     current_month_contract_price = models.FloatField(blank=True, null=True) #C
     current_month_progress_payment = models.FloatField(blank=True, null=True) #D
