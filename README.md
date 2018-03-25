@@ -17,5 +17,9 @@ mysql 5.7.21
 - record_list.html 中增加 /caculate/by/district/ 请求的处理，但是这个汇总结果还需调试，
 - 在 caculate_by_district.html 增加 gather-submit 按钮，后期可以根据区域来切换显示汇总结果
 
+## 20180325 完成内容
+- models 表还需要做进一步细化
+- views 中 caculate_by_district.py 通过现有表的 for 循环迭代来生成 production_distictrecord 操作太繁琐，应该通过ORM的高级过滤操作结合queryset内置操作函数来进行数据汇总。https://code.ziqiangxuetang.com/django/django-queryset-advance.html 
+
 ## TODO
 完成按照区域性的报表汇总
