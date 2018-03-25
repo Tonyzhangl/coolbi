@@ -1021,6 +1021,8 @@ def caculate_by_district(request):
     try:
         district_list = District.objects.all()
         record_list = Record.objects.all()
+        bigtype_list = BigType.objects.all()
+        category_list = Category.objects.all()
 
         status = get_status()
         phase = status.current_phase
@@ -1028,33 +1030,38 @@ def caculate_by_district(request):
             res["msg"] = "请设置月报期数"
             return JsonResponse(res)
 
-        for district in district_list:
-            C, D, F, G = 0, 0, 0, 0
-            # organization = None
-            for r in record_list:
-                record = Record.objects.filter(
-                    district=district,
-                    phase=phase
-                )
-                if not record:
-                    continue
-                record = record[0]
-                C += record.current_month_contract_price
-                D += record.current_month_progress_payment
-                F += record.accumulative_contract_price
-                G += record.accumulative_progress_payment
-                organization = record.organization
-                print(record)
-            if not organization:
-                continue
+        # 先按照 category 来进行汇总
+        # category_current_month_contract_price = 
 
-            dr_list = DistrictRecord.objects.filter(
-                district=district,
-                organization=organization,
-                phase=phase
-            )
-            if len(dr_list) != 0:
-                continue
+        # for district in district_list:
+        #     C, D, F, G = 0, 0, 0, 0
+        #     # organization = None
+        #     for bigtype in bigtype_list:
+        #         for category in category_list:
+        #             record = Record.objects.filter(
+        #                 district=district,
+        #                 bigtype=bigtype,
+        #                 category=category,
+        #                 phase=phase
+        #             )
+        #             if not record:
+        #                 continue
+        #             record = record[0]
+        #             C += record.current_month_contract_price
+        #             D += record.current_month_progress_payment
+        #             F += record.accumulative_contract_price
+        #             G += record.accumulative_progress_payment
+        #             organization = record.organization
+        #         if not organization:
+        #             continue
+        #
+        #     dr_list = DistrictRecord.objects.filter(
+        #         district=district,
+        #         organization=organization,
+        #         phase=phase
+        #     )
+        #     if len(dr_list) != 0:
+        #         continue
 
             DistrictRecord.objects.create(
                 district=district,

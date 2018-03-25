@@ -100,12 +100,13 @@ class Phase(Model):
 
 class Record(Model):
     """
-    项目区域，项目区域明细，序号，工程分类，工程名称, 单位名称，计量单位，合同单价A，当月工程量B，当月合同价款C，当月进度款D，
+    项目区域，项目区域明细，序号，工程大项，工程分类，工程名称, 单位名称，计量单位，合同单价A，当月工程量B，当月合同价款C，当月进度款D，
     累计工程量E，累计合同价款，累计进度款，备注
     """
     district = models.ForeignKey(District, on_delete=models.CASCADE)
     district_detail = models.ForeignKey(DistrictDetail, on_delete=models.CASCADE, blank=True, null=True)
     number = models.CharField(max_length=64, blank=True, null=True)
+    bigtype = models.ForeignKey(BigType, on_delete=models.CASCADE) #工程大项
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
@@ -163,6 +164,7 @@ class DistrictDetailRecord(Model):
 
 class DistrictRecord(Model):
     district = models.ForeignKey(District, on_delete=models.CASCADE)
+    bigtype = models.ForeignKey(BigType, on_delete=models.CASCADE) #工程大项
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     current_month_contract_price = models.FloatField(blank=True, null=True) #C
