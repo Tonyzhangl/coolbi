@@ -21,9 +21,10 @@ mysql 5.7.21
 - models 表还需要做进一步细化
 - views 中 caculate_by_district.py 通过现有表的 for 循环迭代来生成 production_distictrecord 操作太繁琐，应该通过ORM的高级过滤操作结合queryset内置操作函数来进行数据汇总。https://code.ziqiangxuetang.com/django/django-queryset-advance.html
 
-## 20180327
+## 20180327 完成内容
 - 完善了按照区域汇总的部分，由于production_record中新增bigtype字段，通过ORM的select_related机制完成对bigtype的过滤
 - 调整了按区域汇总的需求按钮，放到对应的template下，由用户来触发。
+- 完成按区域明细汇总
 
 ## TODO
 完成按照district_detail的报表汇总
