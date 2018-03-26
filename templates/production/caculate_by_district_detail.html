@@ -44,7 +44,7 @@
         $.ajax({
             cache: true,
             type: "POST",
-            url: "/caculate/by/district/",
+            url: "/caculate/by/district_detail/",
             data: '',
             async: true,
             contentType: false,
@@ -57,7 +57,7 @@
                     alert(res['msg']);
                 } else {
                     alert(res['msg']);
-                    window.location.href = '/record/list/district/';
+                    window.location.href = '/record/list/district_detail/';
                 }
             }
         });

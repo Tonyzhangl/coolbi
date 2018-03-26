@@ -951,7 +951,7 @@ def caculate_by_district_detail(request):
     try:
         district_list = District.objects.all()
         district_detail_list = DistrictDetail.objects.all()
-        category_list = Category.objects.all()
+        # category_list = Category.objects.all()
 
         status = get_status()
         phase = status.current_phase
@@ -964,10 +964,9 @@ def caculate_by_district_detail(request):
                 C, D, F, G = 0, 0, 0, 0
                 organization = None
                 for category in category_list:
-                    record = CategoryRecord.objects.filter(
+                    record = Record.objects.filter(
                         district=district,
                         district_detail=district_detail,
-                        category=category,
                         phase=phase
                     )
                     if not record:
