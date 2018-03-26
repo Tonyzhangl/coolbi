@@ -9,7 +9,6 @@
     <a href="{% url 'create_record' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">添加</a>
     <!-- <a href="{% url 'edit_parameter' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">设置D的计算所用比率</a>
     <span>当前：D = C * {{ parameter.ratio }}</span> -->
-    <a class="mdui-btn mdui-btn-dense mdui-color-blue mdui-ripple gather-by-district-submit">按照区域汇总</a>
     <a href="{% url 'record_list_category' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">查看按工程分类汇总</a>
     <a href="{% url 'record_list_district_detail' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">查看按区域明细汇总</a>
     <a href="{% url 'record_list_district' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">查看按区域汇总</a>
@@ -117,28 +116,6 @@
         });
     });
 
-    $(".gather-by-district-submit").click(function () {
-        $.ajax({
-            cache: true,
-            type: "POST",
-            url: "/caculate/by/district/",
-            data: '',
-            async: true,
-            contentType: false,
-            processData: false,
-            error: function (res) {
-                alert(res['msg']);
-            },
-            success: function (res) {
-                if (!res['success']) {
-                    alert(res['msg']);
-                } else {
-                    alert(res['msg']);
-                    window.location.href = '/record/list/district/';
-                }
-            }
-        });
-    });
 
 </script>
 

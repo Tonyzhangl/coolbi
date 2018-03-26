@@ -371,11 +371,19 @@ class CreateRecordView(TemplateView):
             accumulative_contract_price = float(current_month_contract_price) + last_F
             accumulative_progress_payment = float(current_month_progress_payment) + last_G
 
+            # create Record的时候传入bigtype结构
+            bigtype=BigType.objects.filter(id=Category.objects.select_related().filter(name=category.name).values('big_type'))[0]
+
+            if not bigtype:
+                res["msg"] = "当前项目工程未属于任何大项"
+                return JsonResponse(res)
+
             data = {
                 'number': number,
                 'district': district,
                 'district_detail': district_detail,
                 'organization': organization,
+                'bigtype': bigtype,
                 'category': category,
                 'project': project,
                 'measurement': measurement,
@@ -938,6 +946,7 @@ class RecordListCategoryView(TemplateView):
 
 @csrf_exempt
 def caculate_by_district_detail(request):
+    # 根据区域明细汇总
     res = {"success": False, "msg": ""}
     try:
         district_list = District.objects.all()
@@ -1030,32 +1039,30 @@ def caculate_by_district(request):
             res["msg"] = "请设置月报期数"
             return JsonResponse(res)
 
-        # 先按照 category 来进行汇总
-        # category_current_month_contract_price = 
+        for district in district_list:
+             # organization = None
+             for bigtype in bigtype_list:
+                 for category in category_list:
+                     C, D, F, G = 0, 0, 0, 0
+                     record = Record.objects.filter(
+                         district=district,
+                         bigtype=bigtype,
+                         category=category,
+                         phase=phase
+                     )
+                     if not record:
+                         continue
+                     record = record[0]
+                     C += record.current_month_contract_price
+                     D += record.current_month_progress_payment
+                     F += record.accumulative_contract_price
+                     G += record.accumulative_progress_payment
+                     organization = record.organization
+                     if not organization:
+                         continue
+                     print(C)
 
-        # for district in district_list:
-        #     C, D, F, G = 0, 0, 0, 0
-        #     # organization = None
-        #     for bigtype in bigtype_list:
-        #         for category in category_list:
-        #             record = Record.objects.filter(
-        #                 district=district,
-        #                 bigtype=bigtype,
-        #                 category=category,
-        #                 phase=phase
-        #             )
-        #             if not record:
-        #                 continue
-        #             record = record[0]
-        #             C += record.current_month_contract_price
-        #             D += record.current_month_progress_payment
-        #             F += record.accumulative_contract_price
-        #             G += record.accumulative_progress_payment
-        #             organization = record.organization
-        #         if not organization:
-        #             continue
-        #
-        #     dr_list = DistrictRecord.objects.filter(
+             # dr_list = DistrictRecord.objects.filter(
         #         district=district,
         #         organization=organization,
         #         phase=phase
@@ -1063,16 +1070,16 @@ def caculate_by_district(request):
         #     if len(dr_list) != 0:
         #         continue
 
-            DistrictRecord.objects.create(
-                district=district,
-                category=category,
-                organization=organization,
-                current_month_contract_price=C,
-                current_month_progress_payment=D,
-                accumulative_contract_price=F,
-                accumulative_progress_payment=G,
-                phase=phase,
-            )
+                     DistrictRecord.objects.create(
+                        district=district,
+                        bigtype=bigtype,
+                        category=category,
+                        organization=organization,
+                        current_month_contract_price=C,
+                        current_month_progress_payment=D,
+                        accumulative_contract_price=F,
+                        accumulative_progress_payment=G,
+                        phase=phase)
         res["success"] = True
         res["msg"] = "汇总计算成功"
         return JsonResponse(res)
