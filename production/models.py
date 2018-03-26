@@ -163,7 +163,7 @@ class DistrictDetailRecord(Model):
 
 
 class DistrictRecord(Model):
-    district = models.ForeignKey(District, on_delete=models.CASCADE)
+    district = models.ForeignKey(District, related_name='records', on_delete=models.CASCADE)
     bigtype = models.ForeignKey(BigType, on_delete=models.CASCADE) #工程大项
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)

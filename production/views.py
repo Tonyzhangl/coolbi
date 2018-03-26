@@ -1091,14 +1091,27 @@ def caculate_by_district(request):
 class RecordListDistrictView(TemplateView):
     template_name = 'production/caculate_by_district.html'
     def get_data(self):
-        district_list = District.objects.all()
-        district_count = len(district_list)
+        districts = District.objects.all()
+        district_count = len(districts)
         district_record_list = DistrictRecord.objects.all()
+        district_list = {
+            d.name: list(d.records.all())
+            for d in districts
+        }
+        # example like blow block:
+        # """
+        # district_list = {}
+        # for d in district:
+        #     dl = district_list[d.name] = []
+        #     for record in d.records.all():
+        #         dl.append(record)
+        # print(district_list)
+        # """
+
         status = get_status()
         return {
                 'district_list': district_list,
                 'district_count': district_count,
-                'district_record_list': district_record_list,
                 'status': status
                 }
 

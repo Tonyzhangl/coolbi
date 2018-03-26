@@ -6,11 +6,13 @@
 
 <div style="margin: auto; padding: 80px 20px 0 20px; ">
     {% include 'status.html' %}
-    {% for district in district_list %}
-    <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent"
-            id="gather-submit">{{ district.name }}</button>
-    {% endfor %}
-    <div class="mdui-table-fluid">
+    <div class="mdui-tab mdui-color-green mdui-tab-scrollable " mdui-tab id="gather-submit">
+        {% for district_name in district_list %}
+        <a href="#{{ district_name }}" class="mdui-ripple">{{ district_name }}</a>
+        {% endfor %}
+    </div>
+    {% for district, records in district_list.items %}
+    <div id="{{ district }}" class="mdui-table-fluid">
       <table class="mdui-table mdui-table-hoverable">
         <thead>
           <tr>
@@ -25,22 +27,22 @@
           </tr>
         </thead>
         <tbody>
-        {% for record in district_record_list %}
-          <tr>
-            <td style="background-color: lightblue">{{ record.district.name }}</td>
-            <td style="background-color: bisque">{{ record.bigtype.name}}</td>
-            <td style="background-color: lightblue">{{ record.category.name}}</td>
-            <td style="background-color: bisque">{{ record.organization.name }}</td>
-            <td>{{ record.current_month_contract_price }}</td>
-            <td>{{ record.current_month_progress_payment }}</td>
-            <td>{{ record.accumulative_contract_price }}</td>
-            <td>{{ record.accumulative_progress_payment }}</td>
-          </tr>
-        {% endfor %}
-
+            {% for record in records %}
+            <tr>
+                <td style="background-color: lightblue">{{ record.district.name }}</td>
+                <td style="background-color: bisque">{{ record.bigtype.name}}</td>
+                <td style="background-color: lightblue">{{ record.category.name}}</td>
+                <td style="background-color: bisque">{{ record.organization.name }}</td>
+                <td>{{ record.current_month_contract_price }}</td>
+                <td>{{ record.current_month_progress_payment }}</td>
+                <td>{{ record.accumulative_contract_price }}</td>
+                <td>{{ record.accumulative_progress_payment }}</td>
+            </tr>
+            {% endfor %}
         </tbody>
       </table>
     </div>
+    {% endfor %}
 </div>
 
 <script src="https://cdn.bootcss.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
