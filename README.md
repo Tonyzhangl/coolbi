@@ -25,6 +25,7 @@ mysql 5.7.21
 - 完善了按照区域汇总的部分，由于production_record中新增bigtype字段，通过ORM的select_related机制完成对bigtype的过滤
 - 调整了按区域汇总的需求按钮，放到对应的template下，由用户来触发。
 - 完成按区域明细汇总
+- 在 DistrictRecord 表中字段 district 中增加 related_name 属性来反向关联，处理数据便捷
 
 ## TODO
 完成按照district_detail的报表汇总
