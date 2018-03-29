@@ -30,7 +30,7 @@ mysql 5.7.21
 ## 20180330 完成内容
 - 完善根据大工程项进行数据汇总
 - 利用mudi panel组件实现大工程项的收缩功能
-- 重新定义了 caculate_by_category 最终的返回数据结构，利用 ORM 中related_name 之心爽歪歪
+- 重新定义了 caculate_by_category 最终的返回数据结构，巧用 related_name实现数据汇总 感谢@Kennethb的思路 (#^.^#)
 
 ## TODO
 多个大工程的时候，发现有些大工程的数据为空，修改bug
