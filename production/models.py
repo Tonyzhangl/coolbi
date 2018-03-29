@@ -42,7 +42,8 @@ class Category(Model):
     工程分类，隶属于工程大类
     """
     name = models.CharField(max_length=512)
-    big_type = models.ForeignKey(BigType, on_delete=models.CASCADE)
+    # 通过主键来查找主键下由多少个副键，eg: BigType 下对应的 Category记录
+    big_type = models.ForeignKey(BigType, related_name='category_bigtype', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -130,9 +131,10 @@ class Record(Model):
 
 
 class CategoryRecord(Model):
-    district = models.ForeignKey(District, on_delete=models.CASCADE)
-    district_detail = models.ForeignKey(DistrictDetail, on_delete=models.CASCADE, blank=True, null=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    # district = models.ForeignKey(District, on_delete=models.CASCADE)
+    # district_detail = models.ForeignKey(DistrictDetail, on_delete=models.CASCADE, blank=True, null=True)
+    bigtype = models.ForeignKey(BigType, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, related_name='categoryrecord_category', on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     current_month_contract_price = models.FloatField(blank=True, null=True) #C
     current_month_progress_payment = models.FloatField(blank=True, null=True) #D

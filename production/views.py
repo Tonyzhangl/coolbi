@@ -859,10 +859,11 @@ def delete_measurement(request):
 
 @csrf_exempt
 def caculate_by_category(request):
+    # 根据工程项目汇总
     res = {"success": False, "msg": ""}
     try:
-        district_list = District.objects.all()
-        district_detail_list = DistrictDetail.objects.all()
+        bigtype_list = BigType.objects.all()
+        organization_list = Organization.objects.all()
         category_list = Category.objects.all()
         project_list = Project.objects.all()
 
@@ -872,34 +873,28 @@ def caculate_by_category(request):
             res["msg"] = "请设置月报期数"
             return JsonResponse(res)
 
-        for district in district_list:
-            for district_detail in district_detail_list:
+        for bigtype in bigtype_list:
                 for category in category_list:
-
                     C, D, F, G = 0, 0, 0, 0
                     organization = None
-                    for project in project_list:
-                        record = Record.objects.filter(
-                            district=district,
-                            district_detail=district_detail,
+                    record = Record.objects.filter(
+                            bigtype=bigtype,
                             category=category,
-                            project=project,
                             phase=phase
                         )
-                        if not record:
-                            continue
-                        record = record[0]
-                        C += record.current_month_contract_price
-                        D += record.current_month_progress_payment
-                        F += record.accumulative_contract_price
-                        G += record.accumulative_progress_payment
-                        organization = record.organization
+                    if not record:
+                        continue
+                    record = record[0]
+                    C += record.current_month_contract_price
+                    D += record.current_month_progress_payment
+                    F += record.accumulative_contract_price
+                    G += record.accumulative_progress_payment
+                    organization = record.organization
                     if not organization:
                         continue
 
                     cr_list = CategoryRecord.objects.filter(
-                        district=district,
-                        district_detail=district_detail,
+                        bigtype=bigtype,
                         category=category,
                         organization=organization,
                         phase=phase
@@ -909,8 +904,7 @@ def caculate_by_category(request):
 
 
                     CategoryRecord.objects.create(
-                        district=district,
-                        district_detail=district_detail,
+                        bigtype=bigtype,
                         category=category,
                         organization=organization,
                         current_month_contract_price=C,
@@ -931,9 +925,66 @@ def caculate_by_category(request):
 class RecordListCategoryView(TemplateView):
     template_name = 'production/caculate_by_category.html'
     def get_data(self):
-        category_record_list = CategoryRecord.objects.all()
+        bigtypes = BigType.objects.all()
         status = get_status()
-        return {'category_record_list': category_record_list, 'status': status}
+        # eg:
+        #     {
+        #      "bigtype_a":
+        #         {
+        #           "current_month_contract_price": 1000,
+        #           "current_month_progress_payment": 500,
+        #           "accumulative_contract_price": 1000,
+        #           "accumulative_progress_payment": 500,
+        #           "category_list":
+        #           {
+        #               "category_a": "categoryrecord_a",
+        #               "category_b": "categoryrecord_b"
+        #           },
+        #         },
+        #      "bigtype_b":
+        #         {
+        #           "current_month_contract_price": 1000,
+        #           "current_month_progress_payment": 500,
+        #           "accumulative_contract_price": 1000,
+        #           "accumulative_progress_payment": 500
+        #           "category_list":
+        #           {
+        #               "category_c": "categoryrecord_c"
+        #           },
+        #         }
+        #     }
+        categoryrecord_list = {}
+        for bigtype in bigtypes:
+            current_month_contract_price = 0
+            current_month_progress_payment = 0
+            accumulative_contract_price = 0
+            accumulative_progress_payment = 0
+            category_list = {}
+            for category in bigtype.category_bigtype.all():
+                try:
+                    categoryrecord = category.categoryrecord_category.all()[0]
+                except IndexError:
+                    continue
+                category_list.update({
+                    category.name: categoryrecord
+                })
+                current_month_contract_price = categoryrecord.current_month_contract_price + current_month_contract_price
+                current_month_progress_payment = categoryrecord.current_month_progress_payment + current_month_progress_payment
+                accumulative_contract_price = categoryrecord.accumulative_contract_price + accumulative_contract_price
+                accumulative_progress_payment = categoryrecord.accumulative_progress_payment + accumulative_progress_payment
+            categoryrecord_list.update(
+                {
+                    bigtype.name:
+                    {
+                        "current_month_contract_price": current_month_contract_price,
+                        "current_month_progress_payment" : current_month_progress_payment,
+                        "accumulative_contract_price" : accumulative_contract_price,
+                        "accumulative_progress_payment" : accumulative_progress_payment,
+                        "category_list" : category_list
+                    }
+                })
+
+        return {'categoryrecord_list': categoryrecord_list, 'status': status}
 
 
     def get_context_data(self, **kwargs):
@@ -1092,7 +1143,6 @@ class RecordListDistrictView(TemplateView):
     template_name = 'production/caculate_by_district.html'
     def get_data(self):
         districts = District.objects.all()
-        district_count = len(districts)
         district_record_list = DistrictRecord.objects.all()
         district_list = {
             d.name: list(d.records.all())
@@ -1111,7 +1161,6 @@ class RecordListDistrictView(TemplateView):
         status = get_status()
         return {
                 'district_list': district_list,
-                'district_count': district_count,
                 'status': status
                 }
 
