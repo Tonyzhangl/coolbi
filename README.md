@@ -27,5 +27,10 @@ mysql 5.7.21
 - 完成按区域明细汇总
 - 在 DistrictRecord 表中字段 district 中增加 related_name 属性来反向关联，处理数据便捷
 
+## 20180330 完成内容
+- 完善根据大工程项进行数据汇总
+- 利用mudi panel组件实现大工程项的收缩功能
+- 重新定义了 caculate_by_category 最终的返回数据结构，利用 ORM 中related_name 之心爽歪歪
+
 ## TODO
-完成按照district_detail的报表汇总
+多个大工程的时候，发现有些大工程的数据为空，修改bug
