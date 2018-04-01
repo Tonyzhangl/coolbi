@@ -32,5 +32,9 @@ mysql 5.7.21
 - 利用mudi panel组件实现大工程项的收缩功能
 - 重新定义了 caculate_by_category 最终的返回数据结构，巧用 related_name实现数据汇总 感谢@Kennethb的思路 (#^.^#)
 
+## 20180401 完成内容
+- bug： 在某一期下面应该只出现该月下实际上创建的 district，而不是前端页面把所有的 district 全部取出来。由于创建 *record* 表中数据的时候实际上是带入 *phase* 字段的，应该从这里的把当月的 *district* 记录拿出来。
+
+
 ## TODO
 多个大工程的时候，发现有些大工程的数据为空，修改bug
