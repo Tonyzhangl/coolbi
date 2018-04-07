@@ -17,7 +17,7 @@
         <thead>
           <tr>
             <th style="background-color: lightblue">地区</th>
-            <th style="background-color: bisque">项目大类<a class="mdui-btn-xs mdui-btn-dense mdui-color-pink mdui-ripple caculate-submit">汇总</a></th>
+            <th style="background-color: bisque">项目大类</th>
             <th style="background-color: lightblue">项目名称</th>
             <th style="background-color: bisque">单位名称</th>
             <th>当月合同价款C</th>
@@ -46,29 +46,5 @@
 </div>
 
 <script src="https://cdn.bootcss.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-<script>
-    $(".caculate-submit").click(function () {
-        $.ajax({
-            cache: true,
-            type: "POST",
-            url: "/caculate/by/district/",
-            data: '',
-            async: true,
-            contentType: false,
-            processData: false,
-            error: function (res) {
-                alert(res['msg']);
-            },
-            success: function (res) {
-                if (!res['success']) {
-                    alert(res['msg']);
-                } else {
-                    alert(res['msg']);
-                    window.location.href = '/record/list/district/';
-                }
-            }
-        });
-    });
-</script>
 
 {% endblock %}

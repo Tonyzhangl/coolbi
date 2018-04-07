@@ -18,7 +18,7 @@
         <thead>
           <tr>
             <th style="background-color: bisque">序号</th>
-            <th style="background-color: bisque">项目区域</th>
+            <th style="background-color: bisque">项目区域<a class="mdui-btn-xs mdui-btn-dense mdui-color-pink mdui-ripple caculate-by-district-submit">汇总</a></th>
             <th style="background-color: bisque">区域明细</th>
             <th style="background-color: bisque">工程分类</th>
             <th style="background-color: bisque">工程名称</th>
@@ -91,6 +91,29 @@
                 }
             });
         }
+    });
+
+    $(".caculate-by-district-submit").click(function () {
+        $.ajax({
+            cache: true,
+            type: "POST",
+            url: "/caculate/by/district/",
+            data: '',
+            async: true,
+            contentType: false,
+            processData: false,
+            error: function (res) {
+                alert(res['msg']);
+            },
+            success: function (res) {
+                if (!res['success']) {
+                    alert(res['msg']);
+                } else {
+                    alert(res['msg']);
+                    window.location.href = '/record/list/district/';
+                }
+            }
+        });
     });
 
     $(".caculate-submit").click(function () {

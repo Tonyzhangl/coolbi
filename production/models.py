@@ -104,7 +104,7 @@ class Record(Model):
     项目区域，项目区域明细，序号，工程大项，工程分类，工程名称, 单位名称，计量单位，合同单价A，当月工程量B，当月合同价款C，当月进度款D，
     累计工程量E，累计合同价款，累计进度款，备注
     """
-    district = models.ForeignKey(District, on_delete=models.CASCADE)
+    district = models.ForeignKey(District, related_name='record_district', on_delete=models.CASCADE)
     district_detail = models.ForeignKey(DistrictDetail, on_delete=models.CASCADE, blank=True, null=True)
     number = models.CharField(max_length=64, blank=True, null=True)
     bigtype = models.ForeignKey(BigType, on_delete=models.CASCADE) #工程大项

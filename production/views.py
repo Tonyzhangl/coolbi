@@ -1078,8 +1078,6 @@ class RecordListDistrictDetailView(TemplateView):
 def caculate_by_district(request):
     res = {"success": False, "msg": ""}
     try:
-        district_list = District.objects.all()
-        record_list = Record.objects.all()
         bigtype_list = BigType.objects.all()
         category_list = Category.objects.all()
 
@@ -1089,28 +1087,49 @@ def caculate_by_district(request):
             res["msg"] = "请设置月报期数"
             return JsonResponse(res)
 
-        for district in district_list:
+        # 在 production_record 表中根据 phase 取出当月期数创建的记录
+        record_list = Record.objects.filter(phase=phase)
+
+        district_temp = False
+        for d in record_list:
+            # 要根据局 district 字段进行去重，避免多次计算
+            if not district_temp :
+                district_temp = d.district
+            elif district_temp and district_temp.name != d.district.name:
+                district_temp = d.district
+            elif district_temp.name == d.district.name:
+                continue
              # organization = None
-             for bigtype in bigtype_list:
-                 for category in category_list:
-                     C, D, F, G = 0, 0, 0, 0
-                     record = Record.objects.filter(
-                         district=district,
-                         bigtype=bigtype,
-                         category=category,
-                         phase=phase
+            for bigtype in bigtype_list:
+                C, D, F, G = 0, 0, 0, 0
+                for category in category_list:
+                    records = Record.objects.filter(
+                     district=district_temp,
+                     bigtype=bigtype,
+                     category=category,
+                     phase=phase
                      )
-                     if not record:
-                         continue
-                     record = record[0]
-                     C += record.current_month_contract_price
-                     D += record.current_month_progress_payment
-                     F += record.accumulative_contract_price
-                     G += record.accumulative_progress_payment
-                     organization = record.organization
-                     if not organization:
-                         continue
-                     print(C)
+                    if not records:
+                        continue
+                    for record in records:
+                        C += record.current_month_contract_price
+                        D += record.current_month_progress_payment
+                        F += record.accumulative_contract_price
+                        G += record.accumulative_progress_payment
+                        organization = record.organization
+                        if not organization:
+                            continue
+
+                DistrictRecord.objects.create(
+                    district=district_temp,
+                    bigtype=bigtype,
+                    category=category,
+                    organization=organization,
+                    current_month_contract_price=C,
+                    current_month_progress_payment=D,
+                    accumulative_contract_price=F,
+                    accumulative_progress_payment=G,
+                    phase=phase)
 
              # dr_list = DistrictRecord.objects.filter(
         #         district=district,
@@ -1120,16 +1139,7 @@ def caculate_by_district(request):
         #     if len(dr_list) != 0:
         #         continue
 
-                     DistrictRecord.objects.create(
-                        district=district,
-                        bigtype=bigtype,
-                        category=category,
-                        organization=organization,
-                        current_month_contract_price=C,
-                        current_month_progress_payment=D,
-                        accumulative_contract_price=F,
-                        accumulative_progress_payment=G,
-                        phase=phase)
+
         res["success"] = True
         res["msg"] = "汇总计算成功"
         return JsonResponse(res)
@@ -1142,10 +1152,12 @@ def caculate_by_district(request):
 class RecordListDistrictView(TemplateView):
     template_name = 'production/caculate_by_district.html'
     def get_data(self):
-        districts = District.objects.all()
-        district_record_list = DistrictRecord.objects.all()
+        status = get_status()
+        phase = status.current_phase
+        district_record_list = DistrictRecord.objects.filter(phase=phase)
+        districts = district_record_list
         district_list = {
-            d.name: list(d.records.all())
+            d.district.name: list(d.district.records.filter(phase=phase))
             for d in districts
         }
         # example like blow block:
@@ -1158,7 +1170,6 @@ class RecordListDistrictView(TemplateView):
         # print(district_list)
         # """
 
-        status = get_status()
         return {
                 'district_list': district_list,
                 'status': status
