@@ -35,6 +35,10 @@ mysql 5.7.21
 ## 20180401 完成内容
 - bug： 在某一期下面应该只出现该月下实际上创建的 district，而不是前端页面把所有的 district 全部取出来。由于创建 *record* 表中数据的时候实际上是带入 *phase* 字段的，应该从这里的把当月的 *district* 记录拿出来。
 
+## 20180407 完成内容
+- bug：修复 caculate_by_district bug。
+- bug: 修复 caculate_by_category bug。
+
 
 ## TODO
 多个大工程的时候，发现有些大工程的数据为空，修改bug
