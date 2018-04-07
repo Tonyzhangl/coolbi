@@ -859,32 +859,43 @@ def delete_measurement(request):
 
 @csrf_exempt
 def caculate_by_category(request):
-    # 根据工程项目汇总
+    # 根据工程项目汇总,按照需求逻辑实际上这部分的数据是根据 production_distictrecord 汇总的数据来进行汇总的
     res = {"success": False, "msg": ""}
     try:
-        bigtype_list = BigType.objects.all()
-        organization_list = Organization.objects.all()
-        category_list = Category.objects.all()
-        project_list = Project.objects.all()
-
         status = get_status()
         phase = status.current_phase
         if not phase:
             res["msg"] = "请设置月报期数"
             return JsonResponse(res)
 
-        for bigtype in bigtype_list:
-                for category in category_list:
-                    C, D, F, G = 0, 0, 0, 0
-                    organization = None
-                    record = Record.objects.filter(
-                            bigtype=bigtype,
-                            category=category,
-                            phase=phase
-                        )
-                    if not record:
-                        continue
-                    record = record[0]
+        district_record_list = DistrictRecord.objects.filter(phase=phase)
+
+        bigtype_tmp = False
+        for district_record in district_record_list:
+            if not bigtype_tmp:
+                bigtype_tmp = district_record.bigtype
+            elif bigtype_tmp and bigtype_tmp.name != district_record.bigtype.name:
+                bigtype_tmp = district_record.bigtype
+            elif bigtype_tmp.name == district_record.bigtype.name:
+                continue
+            # bigtype = district_record.bigtype
+            category_tmp = False
+            for category in bigtype_tmp.category_bigtype.all():
+                if not  category_tmp:
+                    category_tmp = category
+                elif category_tmp and category_tmp.name != category.name:
+                    category_tmp = category
+                elif category_tmp.name == category.name:
+                    continue
+                C, D, F, G = 0, 0, 0, 0
+                record_list = DistrictRecord.objects.filter(
+                        bigtype=bigtype_tmp,
+                        category=category,
+                        phase=phase
+                    )
+                if not record_list:
+                    continue
+                for record in record_list:
                     C += record.current_month_contract_price
                     D += record.current_month_progress_payment
                     F += record.accumulative_contract_price
@@ -893,26 +904,26 @@ def caculate_by_category(request):
                     if not organization:
                         continue
 
-                    cr_list = CategoryRecord.objects.filter(
-                        bigtype=bigtype,
-                        category=category,
-                        organization=organization,
-                        phase=phase
-                    )
-                    if len(cr_list) != 0:
-                        continue
+                    # cr_list = CategoryRecord.objects.filter(
+                    #     bigtype=bigtype,
+                    #     category=category,
+                    #     organization=organization,
+                    #     phase=phase
+                    # )
+                    # if len(cr_list) != 0:
+                    #     continue
 
 
-                    CategoryRecord.objects.create(
-                        bigtype=bigtype,
-                        category=category,
-                        organization=organization,
-                        current_month_contract_price=C,
-                        current_month_progress_payment=D,
-                        accumulative_contract_price=F,
-                        accumulative_progress_payment=G,
-                        phase=phase,
-                    )
+                CategoryRecord.objects.create(
+                    bigtype=bigtype_tmp,
+                    category=category_tmp,
+                    organization=organization,
+                    current_month_contract_price=C,
+                    current_month_progress_payment=D,
+                    accumulative_contract_price=F,
+                    accumulative_progress_payment=G,
+                    phase=phase,
+                )
         res["success"] = True
         res["msg"] = "汇总计算成功"
         return JsonResponse(res)

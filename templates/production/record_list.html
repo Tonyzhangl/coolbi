@@ -20,7 +20,7 @@
             <th style="background-color: bisque">序号</th>
             <th style="background-color: bisque">项目区域<a class="mdui-btn-xs mdui-btn-dense mdui-color-pink mdui-ripple caculate-by-district-submit">汇总</a></th>
             <th style="background-color: bisque">区域明细</th>
-            <th style="background-color: bisque">工程分类</th>
+            <th style="background-color: bisque">工程分类<a class="mdui-btn-xs mdui-btn-dense mdui-color-pink mdui-ripple caculate-by-category-submit">汇总</a></th>
             <th style="background-color: bisque">工程名称</th>
             <th style="background-color: lightblue">单位名称</th>
             <th>计量单位</th>
@@ -116,7 +116,7 @@
         });
     });
 
-    $(".caculate-submit").click(function () {
+    $(".caculate-by-category-submit").click(function () {
         $.ajax({
             cache: true,
             type: "POST",
@@ -137,8 +137,8 @@
                 }
             }
         });
-    });
 
+    });
 
 </script>
 

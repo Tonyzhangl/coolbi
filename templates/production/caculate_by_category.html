@@ -30,7 +30,7 @@
                   <tr>
                     {# <th style="background-color: bisque">工程大项</th> #}
                     <th style="background-color: lightblue">项目名称</th>
-                    <th style="background-color: bisque">施工单位<a class="mdui-btn-xs mdui-btn-dense mdui-color-pink mdui-ripple caculate-submit">汇总</a></th>
+                    <th style="background-color: bisque">施工单位</th>
                     <th>当月合同价款C</th>
                     <th>当月进度款D</th>
                     <th>累计合同价款F</th>
@@ -42,7 +42,7 @@
                   <tr>
                     {# <td style="background-color: bisque">{{ record.bigtype.name }}</td> #}
                     <td style="background-color: lightblue">{{ category }}</td>
-                    <td style="background-color: bisque">{{ record.caorganization.name }}</td>
+                    <td style="background-color: bisque">{{ record.organization.name }}</td>
                     <td>{{ record.current_month_contract_price }}</td>
                     <td>{{ record.current_month_progress_payment }}</td>
                     <td>{{ record.accumulative_contract_price }}</td>
@@ -63,30 +63,5 @@
 
 
 <script src="https://cdn.bootcss.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-<script>
-    $(".caculate-submit").click(function () {
-        $.ajax({
-            cache: true,
-            type: "POST",
-            url: "/caculate/by/category/",
-            data: '',
-            async: true,
-            contentType: false,
-            processData: false,
-            error: function (res) {
-                alert(res['msg']);
-            },
-            success: function (res) {
-                if (!res['success']) {
-                    alert(res['msg']);
-                } else {
-                    alert(res['msg']);
-                    window.location.href = '/record/list/category/';
-                }
-            }
-        });
-
-    });
-</script>
 
 {% endblock %}
