@@ -38,7 +38,8 @@ mysql 5.7.21
 ## 20180407 完成内容
 - bug：修复 caculate_by_district bug。
 - bug: 修复 caculate_by_category bug。
+- function: 完善 caculate_by_district_detail，重新构造了数据结构。
 
 
 ## TODO
-多个大工程的时候，发现有些大工程的数据为空，修改bug
+修复业务bug，优化前端逻辑。
