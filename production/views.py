@@ -3,8 +3,9 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
-
 from production.models import *
+from production.utils import list2dict
+from functools import reduce
 
 
 def get_status():
@@ -1011,56 +1012,131 @@ def caculate_by_district_detail(request):
     # 根据区域明细汇总
     res = {"success": False, "msg": ""}
     try:
-        district_list = District.objects.all()
-        district_detail_list = DistrictDetail.objects.all()
-        # category_list = Category.objects.all()
-
         status = get_status()
         phase = status.current_phase
         if not phase:
             res["msg"] = "请设置月报期数"
             return JsonResponse(res)
 
-        for district in district_list:
-            for district_detail in district_detail_list:
-                C, D, F, G = 0, 0, 0, 0
-                organization = None
-                for category in category_list:
-                    record = Record.objects.filter(
-                        district=district,
-                        district_detail=district_detail,
-                        phase=phase
-                    )
-                    if not record:
-                        continue
-                    record = record[0]
-                    C += record.current_month_contract_price
-                    D += record.current_month_progress_payment
-                    F += record.accumulative_contract_price
-                    G += record.accumulative_progress_payment
-                    organization = record.organization
-                if not organization:
-                    continue
+        # DistrictRecord.objects.filter(phase=phase).values('district_id').annotate(total_current_month_contract_price=Sum('current_month_contract_price')).all()
+        district_record_list = DistrictRecord.objects.filter(phase=phase)
+        # 以下就是将 QuerySet 的数组转变为 key_value 形式的数组方便后续进行数据读取，到数据库表 production_districtdetailrecord 中生成数据
+        # eg:
+        # l = [{district_id:1, district_detail_id:1, sum_key:11},
+        #     {district_id:1, district_detail_id:2, sum_key:12},
+        #     {district_id:2, district_detail_id:1, sum_key:21}]
+        # =>
+        #
+        # r = [
+        #      {'district_id': 1,
+        #        'detials': [
+        #         {district_tetail_id:1, sum_key:11},
+        #         {district_detail_id:2, sum_key:12}
+        #     ]},
+        #     {'district_id': 2,
+        #        'detials': [
+        #         {district_tetail_id:2, sum_key:21}
+        #     ]}
+        #   ]
+        dtcmcp = list2dict(DistrictRecord, phase, 'district_id', 'district_detail_id',  'current_month_contract_price')
+        dtcmpp = list2dict(DistrictRecord, phase, 'district_id', 'district_detail_id', 'current_month_progress_payment')
+        dtacp =  list2dict(DistrictRecord, phase, 'district_id', 'district_detail_id','accumulative_contract_price')
+        dtapp = list2dict(DistrictRecord, phase, 'district_id', 'district_detail_id', 'accumulative_progress_payment')
+        # eg:
+        # {
+        #     'accumulative_contract_price': [
+        #     {
+        #         'details': [{'accumulative_contract_price': 1324051.2, 'district_detail_id': 7}],
+        #         'district_id': 3},
+        #     {
+        #         'details': [{'accumulative_contract_price': 1792083.2, 'district_detail_id': 8}],
+        #         'district_id': 4}
+        #     ],
+        #     'accumulative_progress_payment': [
+        #     {
+        #         'details': [{'accumulative_progress_payment': 1324051.2, 'district_detail_id': 7}],
+        #         'district_id': 3},
+        #     {
+        #         'details': [{'accumulative_progress_payment': 1792083.2, 'district_detail_id': 8}],
+        #         'district_id': 4}
+        #     ],
+        #     'current_month_contract_price': [
+        #     {
+        #         'details': [{'current_month_contract_price': 1655064.0, 'district_detail_id': 7}],
+        #         'district_id': 3},
+        #     {
+        #         'details': [{'current_month_contract_price': 2240104.0, 'district_detail_id': 8}],
+        #         'district_id': 4}
+        #     ],
+        #     'current_month_progress_payment': [
+        #     {
+        #         'details': [{'current_month_progress_payment': 1324051.2, 'district_detail_id': 7}],
+        #         'district_id': 3},
+        #     {
+        #         'details': [{'current_month_progress_payment': 1792083.2, 'district_detail_id': 8}],
+        #         'district_id': 4}
+        #     ]
+        # }
+        # dict_tmp = {'current_month_contract_price': dtcmcp,
+        #             'current_month_progress_payment': dtcmpp,
+        #             'accumulative_contract_price': dtacp,
+        #             'accumulative_progress_payment': dtapp}
+        for _, dtcmcp_v in enumerate(dtcmcp):
+            district_id = dtcmcp_v.get('district_id')
+            total_current_month_contract_price = reduce(lambda x,y:x+y, list(map(lambda x:x.get('current_month_contract_price'), dtcmcp_v.get('details'))))
+            for _, dtcmcp_detail_v in enumerate(dtcmcp_v.get('details')):
+                district_detail_id = dtcmcp_detail_v.get('district_detail_id')
+                current_month_contract_price = dtcmcp_detail_v.get('current_month_contract_price')
+                for _, dtcmpp_v in enumerate(dtcmpp):
+                    if district_id == dtcmpp_v.get('district_id'):
+                        total_current_month_process_payment = reduce(lambda x,y:x+y, list(map(lambda x:x.get('current_month_progress_payment'), dtcmpp_v.get('details'))))
+                    for _, dtcmpp_detail_v in enumerate(dtcmpp_v.get('details')):
+                        if district_detail_id == dtcmpp_detail_v.get('district_detail_id'):
+                            current_month_progress_payment = dtcmpp_detail_v.get('current_month_progress_payment')
 
-                ddr_list = DistrictDetailRecord.objects.filter(
-                    district=district,
-                    district_detail=district_detail,
-                    organization=organization,
-                    phase=phase
-                )
-                if len(ddr_list) != 0:
-                    continue
+                for _, dtacp_v in enumerate(dtacp):
+                    if district_id == dtacp_v.get('district_id'):
+                        total_accumulative_contract_price = reduce(lambda x,y:x+y, list(map(lambda x:x.get('accumulative_contract_price'), dtacp_v.get('details'))))
+                    for _, dtacp_detail_v in enumerate(dtacp_v.get('details')):
+                        if district_detail_id == dtacp_detail_v.get('district_detail_id'):
+                            accumulative_contract_price = dtacp_detail_v.get('accumulative_contract_price')
+
+                for _, dtapp_v in enumerate(dtapp):
+                    if district_id == dtapp_v.get('district_id'):
+                        total_accumulative_process_payment = reduce(lambda x,y:x+y, list(map(lambda x:x.get('accumulative_progress_payment'), dtapp_v.get('details'))))
+                    for _, dtapp_detail_v in enumerate(dtapp_v.get('details')):
+                        if district_detail_id == dtapp_detail_v.get('district_detail_id'):
+                            accumulative_progress_payment = dtapp_detail_v.get('accumulative_progress_payment')
+                district_object = District.objects.filter(id=district_id)[0]
+                district_detail_object = DistrictDetail.objects.filter(id=district_detail_id)[0]
 
                 DistrictDetailRecord.objects.create(
-                    district=district,
-                    district_detail=district_detail,
-                    organization=organization,
-                    current_month_contract_price=C,
-                    current_month_progress_payment=D,
-                    accumulative_contract_price=F,
-                    accumulative_progress_payment=G,
-                    phase=phase,
+                    district=district_object,
+                    district_detail=district_detail_object,
+                    current_month_contract_price=current_month_contract_price,
+                    current_month_progress_payment=current_month_progress_payment,
+                    accumulative_contract_price=accumulative_contract_price,
+                    accumulative_progress_payment=accumulative_progress_payment,
+                    total_current_month_contract_price=total_current_month_contract_price,
+                    total_current_month_process_payment=total_current_month_process_payment,
+                    total_accumulative_contract_price=total_accumulative_contract_price,
+                    total_accumulative_process_payment=total_accumulative_process_payment,
+                    phase=phase
                 )
+
+                #
+                # if not organization:
+                #     continue
+                #
+                # ddr_list = DistrictDetailRecord.objects.filter(
+                #     district=district,
+                #     district_detail=district_detail,
+                #     organization=organization,
+                #     phase=phase
+                # )
+                # if len(ddr_list) != 0:
+                #     continue
+
         res["success"] = True
         res["msg"] = "汇总计算成功"
         return JsonResponse(res)
@@ -1133,6 +1209,7 @@ def caculate_by_district(request):
 
                 DistrictRecord.objects.create(
                     district=district_temp,
+                    district_detail=record.district_detail,
                     bigtype=bigtype,
                     category=category,
                     organization=organization,

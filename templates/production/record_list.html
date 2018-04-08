@@ -12,14 +12,14 @@
     <a href="{% url 'record_list_category' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">查看按工程分类汇总</a>
     <a href="{% url 'record_list_district_detail' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">查看按区域明细汇总</a>
     <a href="{% url 'record_list_district' %}" class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple">查看按区域汇总</a>
-    <span style="color: red;">注意：按次序（工程分类->区域明细->区域）逐级汇总数据，有数据录入变动时，需重新汇总计算</span>
+    <span style="color: red;">注意：按次序（项目区域->工程分类->区域明细）逐级汇总数据，有数据录入变动时，需重新汇总计算</span>
     <div class="mdui-table-fluid">
       <table class="mdui-table mdui-table-hoverable">
         <thead>
           <tr>
             <th style="background-color: bisque">序号</th>
             <th style="background-color: bisque">项目区域<a class="mdui-btn-xs mdui-btn-dense mdui-color-pink mdui-ripple caculate-by-district-submit">汇总</a></th>
-            <th style="background-color: bisque">区域明细</th>
+            <th style="background-color: bisque">区域明细<a class="mdui-btn-xs mdui-btn-dense mdui-color-pink mdui-ripple caculate-by-district-detail-submit">汇总</a></th>
             <th style="background-color: bisque">工程分类<a class="mdui-btn-xs mdui-btn-dense mdui-color-pink mdui-ripple caculate-by-category-submit">汇总</a></th>
             <th style="background-color: bisque">工程名称</th>
             <th style="background-color: lightblue">单位名称</th>
@@ -115,7 +115,28 @@
             }
         });
     });
-
+    $(".caculate-by-district-detail-submit").click(function () {
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url: "/caculate/by/district_detail/",
+                data: '',
+                async: true,
+                contentType: false,
+                processData: false,
+                error: function (res) {
+                    alert(res['msg']);
+                },
+                success: function (res) {
+                    if (!res['success']) {
+                        alert(res['msg']);
+                    } else {
+                        alert(res['msg']);
+                        window.location.href = '/record/list/district_detail/';
+                    }
+                }
+            });
+    });
     $(".caculate-by-category-submit").click(function () {
         $.ajax({
             cache: true,
