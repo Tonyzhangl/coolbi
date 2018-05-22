@@ -156,10 +156,6 @@ class DistrictDetailRecord(Model):
     current_month_progress_payment = models.FloatField(blank=True, null=True) #D
     accumulative_contract_price = models.FloatField(blank=True, null=True) #F
     accumulative_progress_payment = models.FloatField(blank=True, null=True) #G
-    total_current_month_contract_price = models.FloatField(blank=True, null=True)
-    total_current_month_process_payment = models.FloatField(blank=True, null=True)
-    total_accumulative_contract_price = models.FloatField(blank=True, null=True)
-    total_accumulative_process_payment = models.FloatField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
     phase = models.ForeignKey(Phase, on_delete=models.CASCADE) #第几期/几月份的数据
@@ -170,9 +166,9 @@ class DistrictDetailRecord(Model):
 
 class DistrictRecord(Model):
     district = models.ForeignKey(District, related_name='records', on_delete=models.CASCADE)
-    district_detail = models.ForeignKey(DistrictDetail, on_delete=models.CASCADE)
+    # district_detail = models.ForeignKey(DistrictDetail, on_delete=models.CASCADE)
     bigtype = models.ForeignKey(BigType, on_delete=models.CASCADE) #工程大项
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    # category = models.ForeignKey(Category, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     current_month_contract_price = models.FloatField(blank=True, null=True) #C
     current_month_progress_payment = models.FloatField(blank=True, null=True) #D
