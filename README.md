@@ -40,6 +40,9 @@ mysql 5.7.21
 - bug: 修复 caculate_by_category bug。
 - function: 完善 caculate_by_district_detail，重新构造了数据结构。
 
+## 20180522 完成内容
+- bug： 更改汇总后台代码，将之前丑陋的汇聚分组用django ORM 实现
+
 
 ## TODO
 修复业务bug，优化前端逻辑。
