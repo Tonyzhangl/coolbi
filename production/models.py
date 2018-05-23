@@ -11,7 +11,7 @@ class District(Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['created_at']
 
 
 class DistrictDetail(Model):
@@ -23,7 +23,7 @@ class DistrictDetail(Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['created_at']
 
 
 class BigType(Model):
@@ -34,7 +34,7 @@ class BigType(Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['created_at']
 
 
 class Category(Model):
@@ -47,7 +47,7 @@ class Category(Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['created_at']
 
 
 class Project(Model):
@@ -59,7 +59,7 @@ class Project(Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['created_at']
 
 
 class Organization(Model):
@@ -70,7 +70,7 @@ class Organization(Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['created_at']
 
 
 class Measurement(Model):
@@ -81,7 +81,7 @@ class Measurement(Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['created_at']
 
 
 class Phase(Model):
@@ -96,7 +96,7 @@ class Phase(Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['created_at']
 
 
 class Record(Model):
@@ -106,7 +106,7 @@ class Record(Model):
     """
     district = models.ForeignKey(District, related_name='record_district', on_delete=models.CASCADE)
     district_detail = models.ForeignKey(DistrictDetail, on_delete=models.CASCADE, blank=True, null=True)
-    number = models.CharField(max_length=64, blank=True, null=True)
+    # number = models.CharField(max_length=64, blank=True, null=True)
     bigtype = models.ForeignKey(BigType, on_delete=models.CASCADE) #工程大项
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -127,7 +127,7 @@ class Record(Model):
     phase = models.ForeignKey(Phase, on_delete=models.CASCADE) #第几期/几月份的数据
 
     class Meta:
-        ordering = ['-created_at', '-updated_at']
+        ordering = ['created_at', 'updated_at']
 
 
 class CategoryRecord(Model):
@@ -145,7 +145,7 @@ class CategoryRecord(Model):
     phase = models.ForeignKey(Phase, on_delete=models.CASCADE) #第几期/几月份的数据
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['created_at']
 
 
 class DistrictDetailRecord(Model):
@@ -161,7 +161,7 @@ class DistrictDetailRecord(Model):
     phase = models.ForeignKey(Phase, on_delete=models.CASCADE) #第几期/几月份的数据
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['created_at']
 
 
 class DistrictRecord(Model):
@@ -179,7 +179,7 @@ class DistrictRecord(Model):
     phase = models.ForeignKey(Phase, on_delete=models.CASCADE) #第几期/几月份的数据
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['created_at']
 
 
 class Status(Model):

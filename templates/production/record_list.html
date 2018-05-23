@@ -17,7 +17,6 @@
       <table class="mdui-table mdui-table-hoverable">
         <thead>
           <tr>
-            <th style="background-color: bisque">序号</th>
             <th style="background-color: bisque">项目区域<a class="mdui-btn-xs mdui-btn-dense mdui-color-pink mdui-ripple caculate-by-district-submit">汇总</a></th>
             <th style="background-color: bisque">区域明细<a class="mdui-btn-xs mdui-btn-dense mdui-color-pink mdui-ripple caculate-by-district-detail-submit">汇总</a></th>
             <th style="background-color: bisque">工程分类<a class="mdui-btn-xs mdui-btn-dense mdui-color-pink mdui-ripple caculate-by-category-submit">汇总</a></th>
@@ -38,7 +37,6 @@
         <tbody>
         {% for record in record_list %}
           <tr>
-            <td style="background-color: bisque">{{ record.number }}</td>
             <td style="background-color: bisque">{{ record.district.name }}</td>
             <td style="background-color: bisque">{{ record.district_detail.name }}</td>
             <td style="background-color: bisque">{{ record.category.name }}</td>

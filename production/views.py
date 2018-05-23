@@ -256,7 +256,6 @@ class CreateRecordView(TemplateView):
     def post(self, *args, **kwargs):
         res = {"success": False, "msg": ""}
         try:
-            number = self.request.POST.get('number')
             district_id = self.request.POST.get('district')
             district_detail_id = self.request.POST.get('district_detail')
             organization_id = self.request.POST.get('organization')
@@ -267,14 +266,7 @@ class CreateRecordView(TemplateView):
             current_month_project_quantities = self.request.POST.get('current_month_project_quantities')
             current_month_contract_price = self.request.POST.get('current_month_contract_price')
             current_month_project_parameter = self.request.POST.get('current_month_project_parameter')
-            # all_project_count = self.request.POST.get('all_project_count')
-            # all_contract_money = self.request.POST.get('all_contract_money')
-            # all_process_payment = self.request.POST.get('all_process_payment')
             remark = self.request.POST.get('remark')
-
-            if not number:
-                res["msg"] = "请填写序号"
-                return JsonResponse(res)
 
             if not district_id:
                 res["msg"] = "请选择区域"
@@ -379,7 +371,6 @@ class CreateRecordView(TemplateView):
                 return JsonResponse(res)
 
             data = {
-                'number': number,
                 'district': district,
                 'district_detail': district_detail,
                 'organization': organization,

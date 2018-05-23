@@ -26,10 +26,6 @@
                 <option value="{{ o.id }}">{{ o.name }}</option>
             {% endfor %}
         </select>
-        <div class="mdui-textfield mdui-textfield-floating-label">
-            <label class="mdui-textfield-label">序号</label>
-            <input class="mdui-textfield-input" type="text" name="number"/>
-        </div>
         <select class="mdui-select" id="demo-js" name="category">
             <option value="">工程分类</option>
             {% for c in category_list %}
