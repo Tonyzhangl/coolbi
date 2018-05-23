@@ -13,10 +13,10 @@
                         <div class="mdui-panel-item-title">{{ bigtype }}</div>
                             <div class="mdui-panel-item-summary">
                                 <div class="mdui-row">
-                                      <div class="mdui-col-xs-6">当月合同款: {{ records.current_month_contract_price }}</div>
-                                      <div class="mdui-col-xs-6">当月工程款: {{ records.current_month_progress_payment }}</div>
-                                      <div class="mdui-col-xs-6">合同价款累计: {{ records.accumulative_contract_price }}</div>
-                                      <div class="mdui-col-xs-6">实付款: {{ records.accumulative_progress_payment }}</div>
+                                      <div class="mdui-col-xs-6">当月合同款: {{ records.current_month_contract_price|floatformat:2 }}</div>
+                                      <div class="mdui-col-xs-6">当月工程款: {{ records.current_month_progress_payment|floatformat:2 }}</div>
+                                      <div class="mdui-col-xs-6">合同价款累计: {{ records.accumulative_contract_price|floatformat:2 }}</div>
+                                      <div class="mdui-col-xs-6">实付款: {{ records.accumulative_progress_payment|floatformat:2 }}</div>
                                 </div>
                             </div>
                             <i class="mdui-panel-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
@@ -41,10 +41,10 @@
                     {# <td style="background-color: bisque">{{ record.bigtype.name }}</td> #}
                     <td style="background-color: lightblue">{{ category }}</td>
                     <td style="background-color: bisque">{{ record.organization.name }}</td>
-                    <td>{{ record.current_month_contract_price }}</td>
-                    <td>{{ record.current_month_progress_payment }}</td>
-                    <td>{{ record.accumulative_contract_price }}</td>
-                    <td>{{ record.accumulative_progress_payment }}</td>
+                    <td>{{ record.current_month_contract_price|floatformat:2 }}</td>
+                    <td>{{ record.current_month_progress_payment|floatformat:2 }}</td>
+                    <td>{{ record.accumulative_contract_price|floatformat:2 }}</td>
+                    <td>{{ record.accumulative_progress_payment|floatformat:2 }}</td>
                   </tr>
                 {% endfor %}
 

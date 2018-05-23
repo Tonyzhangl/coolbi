@@ -23,10 +23,10 @@
           <tr>
             <td style="background-color: bisque">{{ record.district.name }}</td>
             <td style="background-color: bisque">{{ record.district_detail.name }}</td>
-            <td>{{ record.current_month_contract_price }}</td>
-            <td>{{ record.current_month_progress_payment }}</td>
-            <td>{{ record.accumulative_contract_price }}</td>
-            <td>{{ record.accumulative_progress_payment }}</td>
+            <td>{{ record.current_month_contract_price|floatformat:2 }}</td>
+            <td>{{ record.current_month_progress_payment|floatformat:2 }}</td>
+            <td>{{ record.accumulative_contract_price|floatformat:2 }}</td>
+            <td>{{ record.accumulative_progress_payment|floatformat:2 }}</td>
           </tr>
         {% endfor %}
 

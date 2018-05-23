@@ -44,12 +44,12 @@
             <td style="background-color: lightblue">{{ record.organization.name }}</td>
             <td>{{ record.measurement.name }}</td>
             <td>{{ record.contract_unit_price }}</td>
-            <td>{{ record.current_month_project_quantities }}</td>
-            <td>{{ record.current_month_contract_price }}</td>
-            <td>{{ record.current_month_progress_payment }}</td>
-            <td>{{ record.accumulative_project_quantities }}</td>
-            <td>{{ record.accumulative_contract_price }}</td>
-            <td>{{ record.accumulative_progress_payment }}</td>
+            <td>{{ record.current_month_project_quantities|floatformat:2 }}</td>
+            <td>{{ record.current_month_contract_price|floatformat:2  }}</td>
+            <td>{{ record.current_month_progress_payment|floatformat:2  }}</td>
+            <td>{{ record.accumulative_project_quantities|floatformat:2  }}</td>
+            <td>{{ record.accumulative_contract_price|floatformat:2  }}</td>
+            <td>{{ record.accumulative_progress_payment|floatformat:2  }}</td>
             <td>{{ record.remark }}</td>
             <td><a class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple delete-submit" id="{{ record.id }}">删除</a></td>
           </tr>
