@@ -53,6 +53,7 @@ urlpatterns = [
     url(r'^caculate/by/district/$',  login_required(caculate_by_district, login_url='/login/'), name="caculate_by_district"),
     url(r'^record/list/district/$',  login_required(RecordListDistrictView.as_view(), login_url='/login/'), name="record_list_district"),
 
-
+    url(r'^search/by/district/$', login_required(search_by_district, login_url='/login/'), name="search_by_district"),
+    url(r'^search/by/category/$', login_required(search_by_category, login_url='/login/'), name="search_by_category"),
 
 ]

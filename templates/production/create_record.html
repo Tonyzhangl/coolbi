@@ -6,41 +6,32 @@
 
 <div style="margin: auto; padding: 80px 20px 0 20px; width: 600px;">
     <form id="CreateForm" method="post" enctype="multipart/form-data">{% csrf_token %}
-        <select class="mdui-select" id="demo-js" name="district">
-            <option value="">区域选择</option>
+        <select class="mdui-select" id="district-select" name="district">
+            <option value="district">区域选择</option>
             {% for d in district_list %}
                 <option value="{{ d.id }}">{{ d.name }}</option>
             {% endfor %}
-
         </select>
-        <select class="mdui-select" id="demo-js" style="margin-left: 20px;" name="district_detail">
-            <option value="">区域明细</option>
-            {% for d in district_detail_list %}
-                <option value="{{ d.id }}">{{ d.name }}</option>
-            {% endfor %}
-
+        <select class="mdui-select" id="district-detail-select" style="margin-left: 20px;" name="district_detail">
+            <option value="district-detail">区域明细</option>
         </select>
-        <select class="mdui-select" id="demo-js" style="margin-left: 20px;" name="organization">
-            <option value="">单位</option>
+        <select class="mdui-select" id="organization-select" style="margin-left: 20px;" name="organization">
+            <option value="organization">单位</option>
             {% for o in organization_list %}
                 <option value="{{ o.id }}">{{ o.name }}</option>
             {% endfor %}
         </select>
-        <select class="mdui-select" id="demo-js" name="category">
-            <option value="">工程分类</option>
+        <select class="mdui-select" id="category-select" name="category">
+            <option value="category">工程分类</option>
             {% for c in category_list %}
                 <option value="{{ c.id }}">{{ c.name }}</option>
             {% endfor %}
         </select>
-        <select class="mdui-select" id="demo-js" style="margin-left: 20px;" name="project">
-            <option value="">工程名称</option>
-            {% for p in project_list %}
-                <option value="{{ p.id }}">{{ p.name }}</option>
-            {% endfor %}
-
+        <select class="mdui-select" id="project-select" style="margin-left: 20px;" name="project">
+            <option value="project">工程名称</option>
         </select>
-        <select class="mdui-select" id="demo-js" style="margin-left: 20px;" name="measurement">
-            <option value="">计量单位</option>
+        <select class="mdui-select" id="measurement-select" style="margin-left: 20px;" name="measurement">
+            <option value="measurement">计量单位</option>
             {% for m in measurement_list %}
                 <option value="{{ m.id }}">{{ m.name }}</option>
             {% endfor %}
@@ -54,29 +45,9 @@
             <input class="mdui-textfield-input" type="text" name="current_month_project_quantities"/>
         </div>
         <div class="mdui-textfield mdui-textfield-floating-label">
-            <label class="mdui-textfield-label">当月完成进度完成合同比</label>
+            <label class="mdui-textfield-label">付款比例</label>
             <input class="mdui-textfield-input" type="text" name="current_month_project_parameter"/>
         </div>
-        <!-- <div class="mdui-textfield mdui-textfield-floating-label">
-            <label class="mdui-textfield-label">当月完成合同进度款</label>
-            <input class="mdui-textfield-input" type="text" name="current_month_progress_payment"/>
-        </div> -->
-        <!-- <div class="mdui-textfield mdui-textfield-floating-label">
-            <label class="mdui-textfield-label">当月完成进度款</label>
-            <input class="mdui-textfield-input" type="text" name="current_month_progress_payment"/>
-        </div> -->
-        <!-- <div class="mdui-textfield mdui-textfield-floating-label">
-            <label class="mdui-textfield-label">累计完成工程量</label>
-            <input class="mdui-textfield-input" type="text" name="all_project_count"/>
-        </div>
-        <div class="mdui-textfield mdui-textfield-floating-label">
-            <label class="mdui-textfield-label">累计完成合同价款</label>
-            <input class="mdui-textfield-input" type="text" name="all_contract_money"/>
-        </div>
-        <div class="mdui-textfield mdui-textfield-floating-label">
-            <label class="mdui-textfield-label">累计完成进度款</label>
-            <input class="mdui-textfield-input" type="text" name="all_process_payment"/>
-        </div> -->
         <div class="mdui-textfield mdui-textfield-floating-label">
             <label class="mdui-textfield-label">备注</label>
             <textarea class="mdui-textfield-input" type="text" name="remark"></textarea>
@@ -86,14 +57,35 @@
     </form>
 </div>
 
-
-
-
 <script>
-
-    var inst = new mdui.Select('#demo-js');
-
-
+    $("#district-select").change(function() {
+        var districtDetail = $("#district-detail-select");
+        $(districtDetail).children().slice(1).remove();
+        var districtId = {"districtId": $("#district-select").val()};
+        $.get("/search/by/district", districtId, function(res) {
+                var districtDetailItem = JSON.parse(res['district_detail_items']);
+                var optionHtml ='';
+                for (var i=0;i<districtDetailItem.length;i++){
+                    optionHtml = optionHtml +
+                    '<option value=' + districtDetailItem[i]['id'] + '>' + districtDetailItem[i]['name'] + '</option>'
+                }
+                $("#district-detail-select").append(optionHtml);
+        })
+    });
+    $("#category-select").change(function() {
+        var projects = $("#project-select");
+        $(projects).children().slice(1).remove();
+        var categoryId = {"categoryId": $("#category-select").val()};
+        $.get("/search/by/category", categoryId, function(res) {
+                var projectItem = JSON.parse(res['project_items']);
+                var optionHtml ='';
+                for (var i=0;i<projectItem.length;i++){
+                    optionHtml = optionHtml +
+                    '<option value=' + projectItem[i]['id'] + '>' + projectItem[i]['name'] + '</option>'
+                }
+                $("#project-select").append(optionHtml);
+        })
+    });
     $("#create-submit").click(function () {
         var uploadFormData = new FormData($('#CreateForm')[0]);
         $.ajax({

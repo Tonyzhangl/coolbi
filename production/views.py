@@ -6,6 +6,7 @@ from django.views.generic import TemplateView
 from production.models import *
 from functools import reduce
 from django.db.models import Sum
+import json
 
 def get_status():
     """
@@ -32,6 +33,19 @@ def get_last_phase():
     else:
         return phase_list[1]
 
+@csrf_exempt
+def search_by_district(request):
+    district_id = request.GET.get("districtId")
+    res = { 'district_detail_items': json.dumps(list(DistrictDetail.objects.filter(district_id=district_id).values('id', 'name')),ensure_ascii=False)}
+    if res.get('district_detail_items'):
+        return JsonResponse(res)
+
+@csrf_exempt
+def search_by_category(request):
+    category_id = request.GET.get("categoryId")
+    res = { 'project_items': json.dumps(list(Project.objects.filter(category_id=category_id).values('id', 'name')), ensure_ascii=False)}
+    if res.get('project_items'):
+        return JsonResponse(res)
 
 class IndexView(TemplateView):
     template_name = "production/index.html"
@@ -238,17 +252,17 @@ class CreateRecordView(TemplateView):
 
     def get_data(self):
         district_list = District.objects.all()
-        district_detail_list = DistrictDetail.objects.all()
+        # district_detail_list = DistrictDetail.objects.all()
         measurement_list =Measurement.objects.all()
         category_list = Category.objects.all()
-        project_list = Project.objects.all()
+        # project_list = Project.objects.all()
         organization_list = Organization.objects.all()
         return {
             'district_list': district_list,
-            'district_detail_list': district_detail_list,
+            # 'district_detail_list': district_detail_list,
             'measurement_list': measurement_list,
             'category_list': category_list,
-            'project_list': project_list,
+            # 'project_list': project_list,
             'organization_list': organization_list
         }
 
