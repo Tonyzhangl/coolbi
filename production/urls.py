@@ -44,16 +44,14 @@ urlpatterns = [
     url(r'^delete/measurement/$',  login_required(delete_measurement, login_url='/login/'), name="delete_measurement"),
 
 
-    url(r'^caculate/by/category/$',  login_required(caculate_by_category, login_url='/login/'), name="caculate_by_category"),
     url(r'^record/list/category/$',  login_required(RecordListCategoryView.as_view(), login_url='/login/'), name="record_list_category"),
 
-    url(r'^caculate/by/district_detail/$',  login_required(caculate_by_district_detail, login_url='/login/'), name="caculate_by_district_detail"),
     url(r'^record/list/district_detail/$',  login_required(RecordListDistrictDetailView.as_view(), login_url='/login/'), name="record_list_district_detail"),
 
-    url(r'^caculate/by/district/$',  login_required(caculate_by_district, login_url='/login/'), name="caculate_by_district"),
     url(r'^record/list/district/$',  login_required(RecordListDistrictView.as_view(), login_url='/login/'), name="record_list_district"),
 
     url(r'^search/by/district/$', login_required(search_by_district, login_url='/login/'), name="search_by_district"),
     url(r'^search/by/category/$', login_required(search_by_category, login_url='/login/'), name="search_by_category"),
+    url(r'^caculate/$', login_required(caculate, login_url='/login/'), name="caculate"),
 
 ]

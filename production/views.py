@@ -862,50 +862,6 @@ def delete_measurement(request):
         return JsonResponse(res)
 
 
-@csrf_exempt
-def caculate_by_category(request):
-    res = {"success": False, "msg": ""}
-    try:
-        status = get_status()
-        phase = status.current_phase
-        if not phase:
-            res["msg"] = "请设置月报期数"
-            return JsonResponse(res)
-
-        bigtype_list = BigType.objects.all()
-        category_list = Category.objects.all()
-        organization_list = Organization.objects.all()
-        record_list = Record.objects.filter(phase=phase)
-
-
-        for bigtype_item in bigtype_list:
-            for category_item in category_list:
-                for organization_item in organization_list:
-                    current_month_contract_price = record_list.filter(bigtype_id=bigtype_item.id).filter(category_id=category_item.id).filter(organization_id=organization_item.id).aggregate(Sum('current_month_contract_price'))
-                    current_month_progress_payment = record_list.filter(bigtype_id=bigtype_item.id).filter(category_id=category_item.id).filter(organization_id=organization_item.id).aggregate(Sum('current_month_progress_payment'))
-                    accumulative_contract_price = record_list.filter(bigtype_id=bigtype_item.id).filter(category_id=category_item.id).filter(organization_id=organization_item.id).aggregate(Sum('accumulative_contract_price'))
-                    accumulative_progress_payment = record_list.filter(bigtype_id=bigtype_item.id).filter(category_id=category_item.id).filter(organization_id=organization_item.id).aggregate(Sum('accumulative_progress_payment'))
-                    if current_month_contract_price.get('current_month_contract_price__sum'):
-                        CategoryRecord.objects.create(
-                            bigtype=BigType.objects.filter(id=bigtype_item.id)[0],
-                            category=Category.objects.filter(id=category_item.id)[0],
-                            organization=Organization.objects.filter(id=organization_item.id)[0],
-                            current_month_contract_price=current_month_contract_price.get('current_month_contract_price__sum'),
-                            current_month_progress_payment=current_month_progress_payment.get('current_month_progress_payment__sum'),
-                            accumulative_contract_price=accumulative_contract_price.get('accumulative_contract_price__sum'),
-                            accumulative_progress_payment=accumulative_progress_payment.get('accumulative_progress_payment__sum'),
-                            phase=phase)
-                    else:
-                        continue
-        res["success"] = True
-        res["msg"] = "汇总计算成功"
-        return JsonResponse(res)
-
-    except Exception as e:
-        res["msg"] = str(e)
-        return JsonResponse(res)
-
-
 class RecordListCategoryView(TemplateView):
     template_name = 'production/caculate_by_category.html'
     def get_data(self):
@@ -977,61 +933,6 @@ class RecordListCategoryView(TemplateView):
         return context
 
 
-
-
-@csrf_exempt
-def caculate_by_district_detail(request):
-    # 根据区域明细汇总
-    res = {"success": False, "msg": ""}
-    try:
-        status = get_status()
-        phase = status.current_phase
-        if not phase:
-            res["msg"] = "请设置月报期数"
-            return JsonResponse(res)
-
-        record_list = Record.objects.filter(phase=phase)
-        district_detail_list = DistrictDetail.objects.all()
-        for district_detail_item in district_detail_list:
-            current_month_contract_price = record_list.filter(district_detail_id=district_detail_item.id).aggregate(Sum('current_month_contract_price'))
-            current_month_progress_payment = record_list.filter(district_detail_id=district_detail_item.id).aggregate(Sum('current_month_progress_payment'))
-            accumulative_contract_price  = record_list.filter(district_detail_id=district_detail_item.id).aggregate(Sum('accumulative_contract_price'))
-            accumulative_progress_payment = record_list.filter(district_detail_id=district_detail_item.id).aggregate(Sum('accumulative_progress_payment'))
-            if current_month_contract_price.get('current_month_contract_price__sum'):
-                DistrictDetailRecord.objects.create(
-                    district=District.objects.filter(id=district_detail_item.district_id)[0],
-                    district_detail=DistrictDetail.objects.filter(id=district_detail_item.id)[0],
-                    current_month_contract_price=current_month_contract_price.get('current_month_contract_price__sum'),
-                    current_month_progress_payment=current_month_progress_payment.get('current_month_progress_payment__sum'),
-                    accumulative_contract_price=accumulative_contract_price.get('accumulative_contract_price__sum'),
-                    accumulative_progress_payment=accumulative_progress_payment.get('accumulative_progress_payment__sum'),
-                    phase=phase
-                )
-            else:
-                continue
-
-                #
-                # if not organization:
-                #     continue
-                #
-                # ddr_list = DistrictDetailRecord.objects.filter(
-                #     district=district,
-                #     district_detail=district_detail,
-                #     organization=organization,
-                #     phase=phase
-                # )
-                # if len(ddr_list) != 0:
-                #     continue
-
-        res["success"] = True
-        res["msg"] = "汇总计算成功"
-        return JsonResponse(res)
-
-    except Exception as e:
-        res["msg"] = str(e)
-        return JsonResponse(res)
-
-
 class RecordListDistrictDetailView(TemplateView):
     template_name = 'production/caculate_by_district_detail.html'
     def get_data(self):
@@ -1044,52 +945,6 @@ class RecordListDistrictDetailView(TemplateView):
         context = super(RecordListDistrictDetailView, self).get_context_data(**kwargs)
         context.update(self.get_data())
         return context
-
-
-
-@csrf_exempt
-def caculate_by_district(request):
-    res = {"success": False, "msg": ""}
-    try:
-        bigtype_list = BigType.objects.all()
-        district_list = District.objects.all()
-        organization_list = Organization.objects.all()
-
-        status = get_status()
-        phase = status.current_phase
-        if not phase:
-            res["msg"] = "请设置月报期数"
-            return JsonResponse(res)
-
-        record_list = Record.objects.filter(phase=phase)
-
-        for district_item in district_list:
-            for bigtype_item in bigtype_list:
-                for organization_item in organization_list:
-                    current_month_contract_price = record_list.filter(district_id=district_item.id).filter(bigtype_id=bigtype_item.id).filter(organization_id=organization_item.id).aggregate(Sum('current_month_contract_price'))
-                    current_month_progress_payment = record_list.filter(district_id=district_item.id).filter(bigtype_id=bigtype_item.id).filter(organization_id=organization_item.id).aggregate(Sum('current_month_progress_payment'))
-                    accumulative_contract_price = record_list.filter(district_id=district_item.id).filter(bigtype_id=bigtype_item.id).filter(organization_id=organization_item.id).aggregate(Sum('accumulative_contract_price'))
-                    accumulative_progress_payment = record_list.filter(district_id=district_item.id).filter(bigtype_id=bigtype_item.id).filter(organization_id=organization_item.id).aggregate(Sum('accumulative_progress_payment'))
-                    if current_month_contract_price.get('current_month_contract_price__sum'):
-                        DistrictRecord.objects.create(
-                            district=District.objects.filter(id=district_item.id)[0],
-                            bigtype=BigType.objects.filter(id=bigtype_item.id)[0],
-                            organization=Organization.objects.filter(id=organization_item.id)[0],
-                            current_month_contract_price=current_month_contract_price.get('current_month_contract_price__sum'),
-                            current_month_progress_payment=current_month_progress_payment.get('current_month_progress_payment__sum'),
-                            accumulative_contract_price=accumulative_contract_price.get('accumulative_contract_price__sum'),
-                            accumulative_progress_payment=accumulative_progress_payment.get('accumulative_progress_payment__sum'),
-                            phase=phase)
-                    else:
-                        continue
-
-        res["success"] = True
-        res["msg"] = "汇总计算成功"
-        return JsonResponse(res)
-
-    except Exception as e:
-        res["msg"] = str(e)
-        return JsonResponse(res)
 
 
 class RecordListDistrictView(TemplateView):
@@ -1123,3 +978,107 @@ class RecordListDistrictView(TemplateView):
         context = super(RecordListDistrictView, self).get_context_data(**kwargs)
         context.update(self.get_data())
         return context
+
+
+@csrf_exempt
+def caculate(request):
+    res = {"success": False, "msg": ""}
+    status = get_status()
+    phase = status.current_phase
+    if not phase:
+        res["msg"] = "请设置月报期数"
+        return JsonResponse(res)
+    record_list = Record.objects.filter(phase=phase)
+    bigtype_list = BigType.objects.all()
+    organization_list = Organization.objects.all()
+    district_list = District.objects.all()
+    category_list = Category.objects.all()
+
+    try:
+        """
+        caculate by district
+        """
+
+        if DistrictRecord.objects.filter(phase=phase):
+            DistrictRecord.objects.filter(phase=phase).delete()
+        for district_item in district_list:
+            for bigtype_item in bigtype_list:
+                for organization_item in organization_list:
+                    current_month_contract_price = record_list.filter(district_id=district_item.id).filter(bigtype_id=bigtype_item.id).filter(organization_id=organization_item.id).aggregate(Sum('current_month_contract_price'))
+                    current_month_progress_payment = record_list.filter(district_id=district_item.id).filter(bigtype_id=bigtype_item.id).filter(organization_id=organization_item.id).aggregate(Sum('current_month_progress_payment'))
+                    accumulative_contract_price = record_list.filter(district_id=district_item.id).filter(bigtype_id=bigtype_item.id).filter(organization_id=organization_item.id).aggregate(Sum('accumulative_contract_price'))
+                    accumulative_progress_payment = record_list.filter(district_id=district_item.id).filter(bigtype_id=bigtype_item.id).filter(organization_id=organization_item.id).aggregate(Sum('accumulative_progress_payment'))
+                    if current_month_contract_price.get('current_month_contract_price__sum'):
+                        DistrictRecord.objects.create(
+                            district=District.objects.filter(id=district_item.id)[0],
+                            bigtype=BigType.objects.filter(id=bigtype_item.id)[0],
+                            organization=Organization.objects.filter(id=organization_item.id)[0],
+                            current_month_contract_price=current_month_contract_price.get('current_month_contract_price__sum'),
+                            current_month_progress_payment=current_month_progress_payment.get('current_month_progress_payment__sum'),
+                            accumulative_contract_price=accumulative_contract_price.get('accumulative_contract_price__sum'),
+                            accumulative_progress_payment=accumulative_progress_payment.get('accumulative_progress_payment__sum'),
+                            phase=phase)
+                    else:
+                        continue
+
+        """
+        caculate by district detail
+        """
+
+        district_detail_list = DistrictDetail.objects.all()
+        if DistrictDetailRecord.objects.filter(phase=phase):
+            DistrictDetailRecord.objects.filter(phase=phase).delete()
+
+        for district_detail_item in district_detail_list:
+            current_month_contract_price = record_list.filter(district_detail_id=district_detail_item.id).aggregate(Sum('current_month_contract_price'))
+            current_month_progress_payment = record_list.filter(district_detail_id=district_detail_item.id).aggregate(Sum('current_month_progress_payment'))
+            accumulative_contract_price  = record_list.filter(district_detail_id=district_detail_item.id).aggregate(Sum('accumulative_contract_price'))
+            accumulative_progress_payment = record_list.filter(district_detail_id=district_detail_item.id).aggregate(Sum('accumulative_progress_payment'))
+            if current_month_contract_price.get('current_month_contract_price__sum'):
+                DistrictDetailRecord.objects.create(
+                    district=District.objects.filter(id=district_detail_item.district_id)[0],
+                    district_detail=DistrictDetail.objects.filter(id=district_detail_item.id)[0],
+                    current_month_contract_price=current_month_contract_price.get('current_month_contract_price__sum'),
+                    current_month_progress_payment=current_month_progress_payment.get('current_month_progress_payment__sum'),
+                    accumulative_contract_price=accumulative_contract_price.get('accumulative_contract_price__sum'),
+                    accumulative_progress_payment=accumulative_progress_payment.get('accumulative_progress_payment__sum'),
+                    phase=phase
+                )
+            else:
+                continue
+
+        """
+            caculate by category
+        """
+
+        if CategoryRecord.objects.filter(phase=phase):
+            CategoryRecord.objects.filter(phase=phase).delete()
+
+        for bigtype_item in bigtype_list:
+            for category_item in category_list:
+                for organization_item in organization_list:
+                    current_month_contract_price = record_list.filter(bigtype_id=bigtype_item.id).filter(category_id=category_item.id).filter(organization_id=organization_item.id).aggregate(Sum('current_month_contract_price'))
+                    current_month_progress_payment = record_list.filter(bigtype_id=bigtype_item.id).filter(category_id=category_item.id).filter(organization_id=organization_item.id).aggregate(Sum('current_month_progress_payment'))
+                    accumulative_contract_price = record_list.filter(bigtype_id=bigtype_item.id).filter(category_id=category_item.id).filter(organization_id=organization_item.id).aggregate(Sum('accumulative_contract_price'))
+                    accumulative_progress_payment = record_list.filter(bigtype_id=bigtype_item.id).filter(category_id=category_item.id).filter(organization_id=organization_item.id).aggregate(Sum('accumulative_progress_payment'))
+                    if current_month_contract_price.get('current_month_contract_price__sum'):
+                        CategoryRecord.objects.create(
+                            bigtype=BigType.objects.filter(id=bigtype_item.id)[0],
+                            category=Category.objects.filter(id=category_item.id)[0],
+                            organization=Organization.objects.filter(id=organization_item.id)[0],
+                            current_month_contract_price=current_month_contract_price.get('current_month_contract_price__sum'),
+                            current_month_progress_payment=current_month_progress_payment.get('current_month_progress_payment__sum'),
+                            accumulative_contract_price=accumulative_contract_price.get('accumulative_contract_price__sum'),
+                            accumulative_progress_payment=accumulative_progress_payment.get('accumulative_progress_payment__sum'),
+                            phase=phase)
+                    else:
+                        continue
+
+
+        res["success"] = True
+        res["msg"] = "汇总计算成功"
+        return JsonResponse(res)
+
+    except Exception as e:
+        res["msg"] = str(e)
+        return JsonResponse(res)
