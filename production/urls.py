@@ -53,5 +53,5 @@ urlpatterns = [
     url(r'^search/by/district/$', login_required(search_by_district, login_url='/login/'), name="search_by_district"),
     url(r'^search/by/category/$', login_required(search_by_category, login_url='/login/'), name="search_by_category"),
     url(r'^caculate/$', login_required(caculate, login_url='/login/'), name="caculate"),
-
+    url(r'^edit/record/(\d+)/$', login_required(EditRecordView.as_view(), login_url='/login/'), name="edit_record"),
 ]

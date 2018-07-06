@@ -4,9 +4,9 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 from production.models import *
-from functools import reduce
 from django.db.models import Sum
 import json
+from django.http import HttpResponseRedirect
 
 def get_status():
     """
@@ -79,15 +79,24 @@ class RecordListView(TemplateView):
 
     def get_data(self):
         status = get_status()
-        record_list = []
         if status.current_phase:
-            record_list = Record.objects.filter(phase=status.current_phase)
+            record_list = Record.objects.filter(phase=status.current_phase).order_by(
+                'district', 'district_detail', 'category', 'project', 'organization'
+            )
         # parameter = Parameter.objects.all()
         # if parameter:
         #     parameter = parameter[0]
         # else:
         #     parameter = Parameter.objects.create(ratio=1.0)
         # return {'record_list': record_list, 'status': status, 'parameter': parameter}
+
+        # records = Record.objects.filter(phase=status.current_phase).values_list(
+        #   'district', 'district_detail', 'category', 'project', 'organization', 'measurement','contract_unit_price',
+        #   'current_month_project_quantities', 'current_month_contract_price', 'current_month_progress_payment',
+        #   'accumulative_project_quantities', 'accumulative_contract_price', 'accumulative_progress_payment',
+        #   'remark'
+        # )
+
         return { 'record_list': record_list, 'status': status}
 
     def get_context_data(self, **kwargs):
@@ -418,6 +427,172 @@ class CreateRecordView(TemplateView):
         context = super(CreateRecordView, self).get_context_data(**kwargs)
         context.update(self.get_data())
         return context
+
+
+class EditRecordView(TemplateView):
+    template_name = 'production/edit_record.html'
+
+
+    def get_data(self, *args, **kwargs):
+        record_id = self.request.path.split('/')[-2]
+        current_record = list(Record.objects.filter(id=record_id))[0]
+        district_list = District.objects.all()
+        # district_detail_list = DistrictDetail.objects.all()
+        measurement_list =Measurement.objects.all()
+        category_list = Category.objects.all()
+        # project_list = Project.objects.all()
+        organization_list = Organization.objects.all()
+        return {
+            'current_record': current_record,
+            'district_list': district_list,
+            # 'district_detail_list': district_detail_list,
+            'measurement_list': measurement_list,
+            'category_list': category_list,
+            # 'project_list': project_list,
+            'organization_list': organization_list
+        }
+
+    def post(self, *args, **kwargs):
+        res = {"success": False, "msg": ""}
+        try:
+            record_id = self.request.path.split('/')[-2]
+            district_id = self.request.POST.get('district')
+            district_detail_id = self.request.POST.get('district_detail')
+            organization_id = self.request.POST.get('organization')
+            category_id = self.request.POST.get('category')
+            project_id = self.request.POST.get('project')
+            measurement_id = self.request.POST.get('measurement')
+            contract_unit_price = self.request.POST.get('contract_unit_price')
+            current_month_project_quantities = self.request.POST.get('current_month_project_quantities')
+            current_month_contract_price = self.request.POST.get('current_month_contract_price')
+            current_month_project_parameter = self.request.POST.get('current_month_project_parameter')
+            remark = self.request.POST.get('remark')
+
+            if not district_id:
+                res["msg"] = "请选择区域"
+                return JsonResponse(res)
+
+            if not district_detail_id:
+                res["msg"] = "请选择区域明细"
+                return JsonResponse(res)
+
+            if not organization_id:
+                res["msg"] = "请选择单位"
+                return JsonResponse(res)
+
+            if not category_id:
+                res["msg"] = "请选择工程分类"
+                return JsonResponse(res)
+
+            if not project_id:
+                res["msg"] = "请选择工程名称"
+                return JsonResponse(res)
+
+            if not measurement_id:
+                res["msg"] = "请选择计量单位"
+                return JsonResponse(res)
+
+            if not contract_unit_price:
+                res["msg"] = "请填写合同单价"
+                return JsonResponse(res)
+
+            if not current_month_project_quantities:
+                res["msg"] = "请填写当月工程量"
+                return JsonResponse(res)
+
+            if not current_month_project_parameter:
+                res["msg"] = "请填写当月进度完成合同比"
+                return JsonResponse(res)
+
+            district = District.objects.get(id=district_id)
+            district_detail = DistrictDetail.objects.get(id=district_detail_id)
+            organization = Organization.objects.get(id=organization_id)
+            category = Category.objects.get(id=category_id)
+            project = Project.objects.get(id=project_id)
+            measurement = Measurement.objects.get(id=measurement_id)
+
+            status = get_status()
+            if not status:
+                res["msg"] = "请设置当前月报期数"
+                return JsonResponse(res)
+            else:
+                if not status.current_phase:
+                    res["msg"] = "请设置当前月报期数"
+                    return JsonResponse(res)
+
+
+            current_month_contract_price = float(contract_unit_price) * float(current_month_project_quantities)
+            parameter = Parameter.objects.all()
+            if not parameter:
+                parameter = Parameter.objects.create(ratio=1.0)
+            else:
+                parameter = parameter[0]
+
+            current_month_progress_payment = current_month_contract_price * float(current_month_project_parameter)
+
+            last_E, last_F, last_G = 0, 0, 0
+            last_phase = get_last_phase()
+            if last_phase:
+                last_phase_record = Record.objects.filter(
+                    district=district,
+                    district_detail=district_detail,
+                    organization=organization,
+                    category=category,
+                    project=project,
+                    phase = last_phase
+                )
+                if last_phase_record:
+                    last_phase_record = last_phase_record[0]
+                    last_E = last_phase_record.accumulative_project_quantities
+                    last_F = last_phase_record.accumulative_contract_price
+                    last_G = last_phase_record.accumulative_progress_payment
+
+            accumulative_project_quantities = float(current_month_project_quantities) + last_E
+            accumulative_contract_price = float(current_month_contract_price) + last_F
+            accumulative_progress_payment = float(current_month_progress_payment) + last_G
+
+            # create Record的时候传入bigtype结构
+            bigtype=BigType.objects.filter(id=Category.objects.select_related().filter(name=category.name).values('big_type'))[0]
+
+            if not bigtype:
+                res["msg"] = "当前项目工程未属于任何大项"
+                return JsonResponse(res)
+
+            data = {
+                'district': district,
+                'district_detail': district_detail,
+                'organization': organization,
+                'bigtype': bigtype,
+                'category': category,
+                'project': project,
+                'measurement': measurement,
+                'contract_unit_price': contract_unit_price,
+                'current_month_project_quantities': current_month_project_quantities,
+                'current_month_contract_price': current_month_contract_price,
+                'current_month_project_parameter': current_month_project_parameter,
+                'current_month_progress_payment': current_month_progress_payment,
+                'accumulative_project_quantities': accumulative_project_quantities,
+                'accumulative_contract_price': accumulative_contract_price,
+                'accumulative_progress_payment': accumulative_progress_payment,
+                'remark': remark,
+                'phase': status.current_phase,
+            }
+
+            Record.objects.filter(id=record_id).update(**data)
+
+            res["success"] = True
+            res["msg"] = "提交成功"
+            return HttpResponseRedirect("/record/list/")
+
+        except Exception as e:
+            res["msg"] = str(e)
+            return JsonResponse(res)
+
+    def get_context_data(self, **kwargs):
+        context = super(EditRecordView, self).get_context_data(**kwargs)
+        context.update(self.get_data())
+        return context
+
 
 
 class CreateDistrictView(TemplateView):

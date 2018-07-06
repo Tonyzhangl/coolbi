@@ -6,26 +6,48 @@
 
 <div style="margin: auto; padding: 80px 20px 0 20px; width: 360px;">
     <form id="CreateForm" method="post" enctype="multipart/form-data">{% csrf_token %}
-        <select class="mdui-select" name="category_id">
+        <select class="mdui-select" id="category-select" name="category_id">
             <option value="">工程分类</option>
             {% for c in category_list %}
                 <option value="{{ c.id }}">{{ c.name }}</option>
             {% endfor %}
         </select>
+        <ul class="mdui-list" mdui-collapse="{accordion: false}">
+            <li class="mdui-collapse-item mdui-collapse-item-open">
+                <div class="mdui-collapse-item-header mdui-list-item mdui-ripple">
+                    <i class="mdui-list-item-icon mdui-icon material-icons">local_shipping</i>
+                    <div class="mdui-list-item-content">此工程分类下已有工程名称</div>
+                    <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+                </div>
+                <ul class="mdui-collapse-item-body mdui-list mdui-list-dense" id="projects">
+                </ul>
+            </li>
+        </ul>
         <div class="mdui-textfield mdui-textfield-floating-label">
             <label class="mdui-textfield-label">工程名称</label>
             <input class="mdui-textfield-input" type="text" name="project"/>
         </div>
-
         <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-pink" type="button"
                 id="create-submit">提交</button>
     </form>
+
 </div>
 
-
-
-
 <script>
+    $("#category-select").change(function() {
+        var projects = $("#projects");
+        $(projects).children().remove();
+        var categoryId = {"categoryId": $("#category-select").val()};
+        $.get("/search/by/category", categoryId, function (res) {
+            var projectItem = JSON.parse(res['project_items']);
+            var chipspanHtml ='';
+                for (var i=0;i<projectItem.length;i++){
+                    chipspanHtml = chipspanHtml +
+                    '<li class="mdui-list-item mdui-ripple">' + projectItem[i]['name'] + '</li>'
+                }
+                $("#projects").append(chipspanHtml);
+        })
+    });
     $("#create-submit").click(function () {
         var uploadFormData = new FormData($('#CreateForm')[0]);
         $.ajax({

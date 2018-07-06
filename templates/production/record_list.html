@@ -23,13 +23,13 @@
             <th style="background-color: bisque">工程名称</th>
             <th style="background-color: lightblue">单位名称</th>
             <th>计量单位</th>
-            <th>合同单价A</th>
-            <th>当月工程量B</th>
-            <th>当月合同价款C</th>
-            <th>当月进度款D</th>
-            <th>累计工程量E</th>
-            <th>累计合同价款F</th>
-            <th>累计进度款G</th>
+            <th class="mdui-table-col-numeric">合同单价A</th>
+            <th class="mdui-table-col-numeric">当月工程量B</th>
+            <th class="mdui-table-col-numeric">当月合同价款C</th>
+            <th class="mdui-table-col-numeric">当月进度款D</th>
+            <th class="mdui-table-col-numeric">累计工程量E</th>
+            <th class="mdui-table-col-numeric">累计合同价款F</th>
+            <th class="mdui-table-col-numeric">累计进度款G</th>
             <th>备注</th>
             <th>操作</th>
           </tr>
@@ -51,12 +51,16 @@
             <td>{{ record.accumulative_contract_price|floatformat:2  }}</td>
             <td>{{ record.accumulative_progress_payment|floatformat:2  }}</td>
             <td>{{ record.remark }}</td>
-            <td><a class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple delete-submit" id="{{ record.id }}">删除</a></td>
+            <td>
+                <a class="mdui-btn mdui-btn-dense mdui-color-pink mdui-ripple delete-submit" id="{{ record.id }}">删除</a>
+                <a href="{% url 'edit_record' record.id %}" class="mdui-btn mdui-btn-dense mdui-ripple mdui-color-blue edit-record">编辑</button>
+            </td>
           </tr>
         {% endfor %}
-
         </tbody>
       </table>
+      <div class="mdui-dialog" id="edit-dialog">
+      </div>
     </div>
 </div>
 
@@ -116,51 +120,7 @@
             },
         });
     });
-    $(".caculate-by-district-detail-submit").click(function () {
-            $.ajax({
-                cache: true,
-                type: "POST",
-                url: "/caculate/by/district_detail/",
-                data: '',
-                async: true,
-                contentType: false,
-                processData: false,
-                error: function (res) {
-                    alert(res['msg']);
-                },
-                success: function (res) {
-                    if (!res['success']) {
-                        alert(res['msg']);
-                    } else {
-                        alert(res['msg']);
-                        window.location.href = '/record/list/district_detail/';
-                    }
-                }
-            });
-    });
-    $(".caculate-by-category-submit").click(function () {
-        $.ajax({
-            cache: true,
-            type: "POST",
-            url: "/caculate/by/category/",
-            data: '',
-            async: true,
-            contentType: false,
-            processData: false,
-            error: function (res) {
-                alert(res['msg']);
-            },
-            success: function (res) {
-                if (!res['success']) {
-                    alert(res['msg']);
-                } else {
-                    alert(res['msg']);
-                    window.location.href = '/record/list/category/';
-                }
-            }
-        });
 
-    });
 
 </script>
 
