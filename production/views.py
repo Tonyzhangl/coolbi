@@ -97,7 +97,9 @@ class RecordListView(TemplateView):
         #   'remark'
         # )
 
-        return { 'record_list': record_list, 'status': status}
+            return { 'record_list': record_list, 'status': status}
+        else:
+            return { 'record_list': None, 'status': None}
 
     def get_context_data(self, **kwargs):
         context = super(RecordListView, self).get_context_data(**kwargs)
@@ -1111,8 +1113,9 @@ class RecordListCategoryView(TemplateView):
 class RecordListDistrictDetailView(TemplateView):
     template_name = 'production/caculate_by_district_detail.html'
     def get_data(self):
-        district_detail_record_list = DistrictDetailRecord.objects.all()
         status = get_status()
+        phase = status.current_phase
+        district_detail_record_list = DistrictDetailRecord.objects.filter(phase=phase)
         return {'district_detail_record_list': district_detail_record_list, 'status': status}
 
 
