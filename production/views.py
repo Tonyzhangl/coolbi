@@ -33,6 +33,15 @@ def get_last_phase():
     else:
         return phase_list[1]
 
+def get_last_second_phase():
+    last_phase_id = Status.objects.all()[0].current_phase_id
+    if Phase.objects.filter(id=last_phase_id - 1):
+        last_second_phase = Phase.objects.filter(id=last_phase_id - 1)
+    else:
+        last_second_phase = None
+    return last_second_phase
+
+
 @csrf_exempt
 def search_by_district(request):
     district_id = request.GET.get("districtId")
@@ -77,9 +86,11 @@ class PhaseListView(TemplateView):
 class RecordListView(TemplateView):
     template_name = 'production/record_list.html'
 
+
     def get_data(self):
         status = get_status()
         if status.current_phase:
+
             record_list = Record.objects.filter(phase=status.current_phase).order_by(
                 'district', 'district_detail', 'category', 'project', 'organization'
             )
@@ -369,6 +380,8 @@ class CreateRecordView(TemplateView):
 
             last_E, last_F, last_G = 0, 0, 0
             last_phase = get_last_phase()
+            last_second_phase = get_last_second_phase()
+
             if last_phase:
                 last_phase_record = Record.objects.filter(
                     district=district,
@@ -378,11 +391,24 @@ class CreateRecordView(TemplateView):
                     project=project,
                     phase = last_phase
                 )
-                if last_phase_record:
-                    last_phase_record = last_phase_record[0]
-                    last_E = last_phase_record.accumulative_project_quantities
-                    last_F = last_phase_record.accumulative_contract_price
-                    last_G = last_phase_record.accumulative_progress_payment
+                # if last_phase_record:
+                #     last_phase_record = last_phase_record[0]
+                #     last_E = last_phase_record.accumulative_project_quantities
+                #     last_F = last_phase_record.accumulative_contract_price
+                #     last_G = last_phase_record.accumulative_progress_payment
+                if last_second_phase:
+                    last_second_phase_record = Record.objects.filter(
+                        district=district,
+                        district_detail=district_detail,
+                        organization=organization,
+                        category=category,
+                        project=project,
+                        phase= last_second_phase[0],
+                    )
+                    if last_second_phase_record: ## 可能上期并不存在此工程记录，所以要加判断
+                        last_E = last_second_phase_record[0].accumulative_project_quantities
+                        last_F = last_second_phase_record[0].accumulative_contract_price
+                        last_G = last_second_phase_record[0].accumulative_progress_payment
 
             accumulative_project_quantities = float(current_month_project_quantities) + last_E
             accumulative_contract_price = float(current_month_contract_price) + last_F
