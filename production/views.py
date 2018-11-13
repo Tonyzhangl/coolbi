@@ -34,13 +34,15 @@ def get_last_phase():
         return phase_list[1]
 
 def get_last_second_phase():
-    last_phase_id = Status.objects.all()[0].current_phase_id
-    if Phase.objects.filter(id=last_phase_id - 1):
-        last_second_phase = Phase.objects.filter(id=last_phase_id - 1)
+    status = get_status()
+    status_current_id = status.current_phase_id
+    phase_created_at = Phase.objects.filter(id=status_current_id)[0].created_at
+    length_phases = len(Phase.objects.filter(created_at__lt=phase_created_at))
+    if length_phases != 0:
+        last_second_phase = Phase.objects.filter(created_at__lt=phase_created_at)[length_phases - 1]
     else:
         last_second_phase = None
     return last_second_phase
-
 
 @csrf_exempt
 def search_by_district(request):
@@ -90,27 +92,36 @@ class RecordListView(TemplateView):
     def get_data(self):
         status = get_status()
         if status.current_phase:
-
-            record_list = Record.objects.filter(phase=status.current_phase).order_by(
-                'district', 'district_detail', 'category', 'project', 'organization'
-            )
-        # parameter = Parameter.objects.all()
-        # if parameter:
-        #     parameter = parameter[0]
-        # else:
-        #     parameter = Parameter.objects.create(ratio=1.0)
-        # return {'record_list': record_list, 'status': status, 'parameter': parameter}
-
-        # records = Record.objects.filter(phase=status.current_phase).values_list(
-        #   'district', 'district_detail', 'category', 'project', 'organization', 'measurement','contract_unit_price',
-        #   'current_month_project_quantities', 'current_month_contract_price', 'current_month_progress_payment',
-        #   'accumulative_project_quantities', 'accumulative_contract_price', 'accumulative_progress_payment',
-        #   'remark'
-        # )
-
-            return { 'record_list': record_list, 'status': status}
+        #
+        #     record_list = Record.objects.filter(phase=status.current_phase).order_by(
+        #         'district', 'district_detail', 'category', 'project', 'organization'
+        #     )
+        #
+        #
+        # ## parameter = Parameter.objects.all()
+        # ## if parameter:
+        # ##     parameter = parameter[0]
+        # ## else:
+        # ##     parameter = Parameter.objects.create(ratio=1.0)
+        # ## return {'record_list': record_list, 'status': status, 'parameter': parameter}
+        # ##
+        # ## records = Record.objects.filter(phase=status.current_phase).values_list(
+        # ##   'district', 'district_detail', 'category', 'project', 'organization', 'measurement','contract_unit_price',
+        # ##   'current_month_project_quantities', 'current_month_contract_price', 'current_month_progress_payment',
+        # ##   'accumulative_project_quantities', 'accumulative_contract_price', 'accumulative_progress_payment',
+        # ##   'remark'
+        # ## )
+            phase_id = status.current_phase_id
+            record_id_queryset = Record.objects.filter(phase__lte=phase_id)
+            record_id_list = record_id_queryset.raw("SELECT a.* FROM (SELECT concat(bigtype_id ,category_id , district_id , district_detail_id) as key_id, updated_at, id FROM production_record) a,(SELECT concat(bigtype_id ,category_id , district_id , district_detail_id) as key_id, max(created_at) AS updated_at FROM production_record GROUP BY concat(bigtype_id ,category_id , district_id , district_detail_id)) b WHERE a.key_id = b.key_id AND a.updated_at = b.updated_at;")
+            r = []
+            for i in record_id_list:
+                r.append(Record.objects.filter(id=i.id).order_by('district', 'district_detail', 'category', 'project', 'organization')[0])
+            return { 'record_list': r, 'status': status}
         else:
             return { 'record_list': None, 'status': None}
+
+
 
     def get_context_data(self, **kwargs):
         context = super(RecordListView, self).get_context_data(**kwargs)
